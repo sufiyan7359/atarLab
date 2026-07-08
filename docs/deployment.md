@@ -92,6 +92,16 @@ EXPOSE 4000
 CMD ["node", "dist/server/server.mjs"]
 ```
 
+**A note on `environment.prod.ts`'s relative `apiUrl: '/api/v1'`**: this only resolves
+correctly once the reverse proxy in section 4 is in front of both services on one origin.
+`angular.json`'s `fileReplacements` (added in Phase 5) swaps `environment.ts` for
+`environment.prod.ts` on any `--configuration production` build (which `ng build`
+defaults to) — so testing that build locally with the frontend and backend on separate
+ports (no reverse proxy) will have the SSR server try to fetch its own origin instead of
+the backend and hang. For local testing without a reverse proxy, build with
+`--configuration development` instead (still produces a working SSR bundle, just
+unminified) so `environment.ts`'s absolute `http://localhost:3000/api/v1` is used.
+
 ## 4. Reverse proxy / routing (production)
 
 Nginx (or platform equivalent — Render/Railway/Fly.io ingress) terminates TLS and routes:
@@ -119,7 +129,7 @@ Both repos: branch protection on `main` (require PR + passing CI + 1 review), Re
 
 - Structured JSON logging (`nestjs-pino` or Winston) with request-id correlation, shipped to a log sink (e.g. Grafana Loki / CloudWatch).
 - `LoggingInterceptor` logs method, path, status, duration, userId (redacted PII).
-- Sentry (or equivalent) on both frontend and backend for exception tracking, with release tagging tied to CI commit SHA.
+- Sentry wired on both frontend (`@sentry/angular`, browser-only) and backend (`@sentry/nestjs`, hooked into the existing `AllExceptionsFilter` for every 5xx) — inert until `SENTRY_DSN` (backend `.env`) / `sentryDsn` (`environment.prod.ts`) are set to a real project DSN, same sandbox-fallback pattern as Razorpay/Cloudinary/Mail. Add release tagging tied to CI commit SHA when wiring a real CI pipeline.
 - `/health`, `/health/db`, `/health/redis` liveness/readiness endpoints wired to the hosting platform's health checks.
 
 ## 7. Scaling notes (post-MVP)
