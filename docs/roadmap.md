@@ -68,12 +68,29 @@ Since there's no real delivery fleet or address geocoding in this sandbox, `Deli
 
 **Verified**: a 12-check Playwright run against the production SSR build — home page content sections, newsletter subscribe, blog list/detail navigation, typo-tolerant search suggestions, voice search UI, frequently-bought-together, and PWA manifest/service-worker registration — all passed against the real backend. Caught and fixed one genuine bug along the way: the blog card's `routerLink` was relative (`[post.slug]`) where `/blog` and `/blog/:slug` are sibling routes, not parent-child, so it resolved to the wrong URL entirely; fixed to `['/blog', post.slug]`.
 
-## Phase 5 — Hardening & launch readiness
-- Load testing checkout + catalog endpoints; tune indexes/caching found lacking.
-- Security review: dependency audit, OWASP top 10 pass, secrets rotation runbook, rate-limit tuning.
-- Backup/restore drill for Postgres; disaster-recovery runbook.
-- Legal/compliance pages (privacy policy, terms, refund policy), cookie consent.
-- Soft launch → monitor Sentry/logs → public launch.
+## Phase 5 — Hardening & launch readiness (engineering work done; launch itself is not)
+- [x] Load testing checkout + catalog endpoints; tune indexes/caching found lacking.
+- [x] Security review: dependency audit, OWASP top 10 pass, secrets rotation runbook, rate-limit tuning.
+- [x] Backup/restore drill for Postgres; disaster-recovery runbook.
+- [x] Legal/compliance pages (privacy policy, terms, refund policy), cookie consent.
+- [ ] Soft launch → monitor Sentry/logs → public launch — **not done**, and can't be from
+      here: this needs real hosting, a real domain, and a real business decision to go
+      live. Sentry itself is wired and verified to initialize correctly on both sides, but
+      with no `SENTRY_DSN` configured anywhere, nothing is actually being monitored yet.
+      See `docs/launch-checklist.md` for the full done-vs-not-done breakdown and the
+      recommended sequence to actually get there.
+
+Real bugs found and fixed this phase (via actual review/testing, not just written docs):
+crashes in `WishlistService`/`ReviewsService` from the same TypeORM `undefined`-in-where
+pattern (unverified review submissions were 500ing), a missing index on
+`order_items.variant_id`, no configured Postgres connection-pool size (confirmed via
+`pg_stat_activity` that 20 concurrent requests saturated node-postgres's default of 10), a
+too-tight global rate limit that would have throttled legitimate catalog browsing once
+Phase 4's instant-search-suggestions started firing per keystroke, two dead footer links
+(`/faq`, `/contact`) and a non-functional footer newsletter form, a `--accent-strong`/
+`--success`/`--danger` contrast shortfall against WCAG AA in various theme combinations,
+and — while wiring Sentry — a genuine `fileReplacements` gap that meant `environment.prod.ts`
+had been dead code since Phase 0.
 
 ## Sequencing rationale
 Payments and inventory correctness are the highest-risk, highest-value pieces — they're proven in Phase 1 while the codebase is small and easy to reason about. Admin tooling (Phase 2) is deliberately after MVP commerce so it manages *real* entities/relationships instead of being built against guesses. Live tracking (Phase 3) depends on the order-status state machine already existing from Phase 2's admin order management. Growth/polish (Phase 4) is intentionally last among features since it's the least risky to bolt on and benefits most from a stable foundation underneath it.
