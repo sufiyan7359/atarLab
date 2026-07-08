@@ -56,15 +56,17 @@ Not carried into Phase 2: order-funnel analytics beyond revenue/top-products/top
 
 Since there's no real delivery fleet or address geocoding in this sandbox, `DeliverySimulatorService` interpolates the agent's position from a fixed dispatch point to a per-order deterministic destination over ~60s — this is what makes the map move without a live GPS feed. Web push (as opposed to in-app notifications) was left out as genuinely optional per the original scope.
 
-## Phase 4 — Growth & experience polish
-- Full content module: blog, FAQ, testimonials, Instagram feed, newsletter — wired into homepage sections started as placeholders in Phase 1.
-- Search: instant suggestions, voice search (Web Speech API), typo tolerance (consider Typesense/Meilisearch if Postgres FTS proves limiting).
-- Wishlist polish (move-to-cart, price-drop alerts).
-- "Frequently bought together" recommendation logic.
-- PWA: manifest, service worker (`ngsw`), offline shell for catalog browsing, installability.
-- Accessibility audit (WCAG 2.1 AA) pass across all customer-facing pages.
-- Performance pass: image optimization/responsive `srcset` via Cloudinary transforms, skeleton loaders everywhere data is fetched, bundle budget enforcement.
-- Dark/light theme full coverage + glassmorphism/gold-accent visual polish pass.
+## Phase 4 — Growth & experience polish (done)
+- [x] Full content module: blog, FAQ, testimonials, Instagram-style social feed, newsletter — wired into homepage sections started as placeholders in Phase 1, plus a `/blog` list + detail page and an admin content management screen.
+- [x] Search: debounced instant-suggestions dropdown, voice search (Web Speech API), typo tolerance via Postgres `pg_trgm` + `word_similarity()` fallback (kept on Postgres rather than adding Typesense/Meilisearch infra — FTS wasn't the bottleneck, ILIKE-miss-on-typo was, and pg_trgm solves that without a new service to run).
+- [x] Wishlist polish: `priceAtAdd` captured at add-time, a "Price dropped" badge when the current price is lower (move-to-cart already existed from Phase 1).
+- [x] "Frequently bought together": ranks products by real order co-occurrence, falling back to same-category products when purchase history is too sparse.
+- [x] PWA: manifest (branded, gold theme-color), service worker (production-only, `registerWhenStable:30000`), a `dataGroups` cache for the public catalog API so browsing works offline, installable.
+- [x] Accessibility pass, scoped to customer-facing pages per this roadmap's own wording (admin is an internal ops tool): toast notifications now announced via `role="status"`/`aria-live` and keyboard-dismissible; unlabeled form fields on checkout/addresses/profile fixed with proper `for`/`id` pairing; `--accent-strong` darkened after computing it only cleared 4.02:1 contrast against white (below AA's 4.5:1) for what is body-sized link/price text everywhere.
+- [x] Performance pass: Cloudinary responsive `srcset`/width-transform on product card images (no-ops safely for non-Cloudinary URLs like the picsum seed images), `loading="lazy"` on remaining below-the-fold images, confirmed the production bundle (432kB raw / 125kB gzip initial) is well inside budget.
+- [x] Theme polish: audited every CSS custom property across light/dark — found `--success`/`--danger` only cleared ~3.2-3.8:1 against the dark background (below AA), brightened them for dark mode the same way `--accent` already gets a lighter shade there.
+
+**Verified**: a 12-check Playwright run against the production SSR build — home page content sections, newsletter subscribe, blog list/detail navigation, typo-tolerant search suggestions, voice search UI, frequently-bought-together, and PWA manifest/service-worker registration — all passed against the real backend. Caught and fixed one genuine bug along the way: the blog card's `routerLink` was relative (`[post.slug]`) where `/blog` and `/blog/:slug` are sibling routes, not parent-child, so it resolved to the wrong URL entirely; fixed to `['/blog', post.slug]`.
 
 ## Phase 5 — Hardening & launch readiness
 - Load testing checkout + catalog endpoints; tune indexes/caching found lacking.

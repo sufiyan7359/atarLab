@@ -58,6 +58,11 @@
     --border: #3a332a;
     --accent: var(--gold-400);
     --accent-strong: var(--gold-200);
+    // The light-mode success/danger shades only clear ~3.2-3.8:1 against this dark
+    // background — below WCAG AA's 4.5:1. Brightened for dark mode the same way
+    // --accent already gets a lighter shade than its light-mode counterpart.
+    --success: #48ab6e;
+    --danger: #dc6b60;
   }
 }
 
@@ -72,6 +77,8 @@
   --border: #3a332a;
   --accent: var(--gold-400);
   --accent-strong: var(--gold-200);
+  --success: #48ab6e;
+  --danger: #dc6b60;
 }
 
 :root[data-theme='light'] {

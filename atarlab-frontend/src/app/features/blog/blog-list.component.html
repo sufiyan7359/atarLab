@@ -10,7 +10,7 @@
   } @else {
     <div class="blog-list-grid">
       @for (post of posts(); track post.id) {
-        <a class="blog-list-card" [routerLink]="[post.slug]">
+        <a class="blog-list-card" [routerLink]="['/blog', post.slug]">
           @if (post.coverImageUrl) {
             <img [src]="post.coverImageUrl" [alt]="post.title" loading="lazy" />
           }
