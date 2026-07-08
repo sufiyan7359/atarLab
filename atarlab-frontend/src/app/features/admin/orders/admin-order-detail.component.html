@@ -8,7 +8,7 @@
       <h1>Order {{ o.orderNumber }}</h1>
       <small style="color: var(--text-secondary);">Placed {{ o.placedAt | date: 'medium' }}</small>
     </div>
-    <span class="badge-pill on">{{ o.status.replace('_', ' ') }}</span>
+    <span class="badge-pill on">{{ o.status.replaceAll('_', ' ') }}</span>
   </div>
 
   <div class="card-surface" style="margin-bottom: var(--space-6)">
@@ -29,7 +29,7 @@
         <label>New Status</label>
         <select [(ngModel)]="selectedStatus" name="status">
           @for (s of statusOptions; track s) {
-            <option [value]="s">{{ s.replace('_', ' ') }}</option>
+            <option [value]="s">{{ s.replaceAll('_', ' ') }}</option>
           }
         </select>
       </div>

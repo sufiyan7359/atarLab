@@ -14,7 +14,7 @@
         <strong>{{ order.orderNumber }}</strong>
         <small>{{ order.placedAt | date: 'mediumDate' }} • {{ order.items.length }} item(s)</small>
       </div>
-      <span class="status-badge" [class]="order.status.toLowerCase()">{{ order.status.replace('_', ' ') }}</span>
+      <span class="status-badge" [class]="order.status.toLowerCase()">{{ order.status.replaceAll('_', ' ') }}</span>
       <strong>{{ order.grandTotal | inr }}</strong>
     </a>
   }

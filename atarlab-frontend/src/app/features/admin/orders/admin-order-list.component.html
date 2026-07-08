@@ -15,7 +15,7 @@
           <tr>
             <td>{{ order.orderNumber }}</td>
             <td>{{ order.placedAt | date: 'mediumDate' }}</td>
-            <td><span class="badge-pill" [class.on]="order.status === 'DELIVERED'" [class.off]="order.status === 'CANCELLED'">{{ order.status.replace('_', ' ') }}</span></td>
+            <td><span class="badge-pill" [class.on]="order.status === 'DELIVERED'" [class.off]="order.status === 'CANCELLED'">{{ order.status.replaceAll('_', ' ') }}</span></td>
             <td>{{ order.paymentStatus }}</td>
             <td>{{ order.grandTotal | inr }}</td>
             <td class="actions">

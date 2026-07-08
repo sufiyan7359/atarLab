@@ -9,7 +9,7 @@
         <h1>Order {{ o.orderNumber }}</h1>
         <p>Placed on {{ o.placedAt | date: 'mediumDate' }}</p>
       </div>
-      <span class="status-badge" [class]="o.status.toLowerCase()">{{ o.status.replace('_', ' ') }}</span>
+      <span class="status-badge" [class]="o.status.toLowerCase()">{{ o.status.replaceAll('_', ' ') }}</span>
     </div>
 
     @if (o.status !== 'CANCELLED' && o.status !== 'DELIVERED' && o.status !== 'RETURNED') {
@@ -18,7 +18,7 @@
         <ul class="timeline">
           @for (step of statusSteps; track step) {
             <li [class.reached]="statusSteps.indexOf(o.status) >= statusSteps.indexOf(step)">
-              {{ step.replace('_', ' ') }}
+              {{ step.replaceAll('_', ' ') }}
             </li>
           }
         </ul>
