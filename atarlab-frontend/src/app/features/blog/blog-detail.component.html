@@ -1,0 +1,16 @@
+<div class="container blog-detail">
+  <a routerLink="/blog" class="back-link">← Back to Journal</a>
+
+  @if (loading()) {
+    <p>Loading article…</p>
+  } @else if (notFound()) {
+    <p>This article couldn't be found.</p>
+  } @else if (post(); as p) {
+    @if (p.coverImageUrl) {
+      <img class="blog-detail-cover" [src]="p.coverImageUrl" [alt]="p.title" />
+    }
+    <h1>{{ p.title }}</h1>
+    <p class="blog-detail-meta">{{ p.authorName }} · {{ p.publishedAt | date: 'mediumDate' }}</p>
+    <div class="blog-detail-content">{{ p.content }}</div>
+  }
+</div>

@@ -27,6 +27,15 @@ export const routes: Routes = [
       import('./features/catalog/product-detail/product-detail.component').then((m) => m.ProductDetailComponent),
   },
   {
+    path: 'blog',
+    loadComponent: () => import('./features/blog/blog-list.component').then((m) => m.BlogListComponent),
+    title: 'The Journal — AtarLab',
+  },
+  {
+    path: 'blog/:slug',
+    loadComponent: () => import('./features/blog/blog-detail.component').then((m) => m.BlogDetailComponent),
+  },
+  {
     path: 'cart',
     loadComponent: () => import('./features/cart/cart-page.component').then((m) => m.CartPageComponent),
     title: 'Your Cart — AtarLab',

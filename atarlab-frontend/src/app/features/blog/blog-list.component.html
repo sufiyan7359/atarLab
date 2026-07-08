@@ -1,0 +1,26 @@
+<div class="container blog-page">
+  <div class="section-head">
+    <h1>The Journal</h1>
+  </div>
+
+  @if (loading()) {
+    <p>Loading articles…</p>
+  } @else if (posts().length === 0) {
+    <p>No articles yet — check back soon.</p>
+  } @else {
+    <div class="blog-list-grid">
+      @for (post of posts(); track post.id) {
+        <a class="blog-list-card" [routerLink]="[post.slug]">
+          @if (post.coverImageUrl) {
+            <img [src]="post.coverImageUrl" [alt]="post.title" loading="lazy" />
+          }
+          <div class="blog-list-body">
+            <p class="blog-date">{{ post.publishedAt | date: 'mediumDate' }}</p>
+            <h2>{{ post.title }}</h2>
+            <p class="blog-excerpt">{{ post.excerpt }}</p>
+          </div>
+        </a>
+      }
+    </div>
+  }
+</div>

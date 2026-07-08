@@ -115,6 +115,61 @@
   font-size: 0.85rem;
 }
 
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+  @media (min-width: 700px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.blog-card {
+  display: block;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-elevated);
+}
+.blog-card img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.blog-card h3 {
+  font-size: 1rem;
+  margin: var(--space-3) var(--space-4) var(--space-2);
+}
+.blog-card p {
+  margin: 0 var(--space-4) var(--space-4);
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.social-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+  @media (min-width: 700px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.social-tile {
+  display: block;
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.social-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+.social-tile:hover img {
+  transform: scale(1.05);
+}
+
 .faq details {
   border-bottom: 1px solid var(--border);
   padding: var(--space-4) 0;

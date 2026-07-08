@@ -67,51 +67,76 @@
   </div>
 </section>
 
+@if (blogPosts().length > 0) {
+  <section class="container section">
+    <div class="section-head">
+      <h2>From the Blog</h2>
+      <a routerLink="/blog">View all →</a>
+    </div>
+    <div class="blog-grid">
+      @for (post of blogPosts(); track post.id) {
+        <a class="blog-card" [routerLink]="['/blog', post.slug]">
+          @if (post.coverImageUrl) {
+            <img [src]="post.coverImageUrl" [alt]="post.title" loading="lazy" />
+          }
+          <h3>{{ post.title }}</h3>
+          <p>{{ post.excerpt }}</p>
+        </a>
+      }
+    </div>
+  </section>
+}
+
 <section class="container section testimonials">
   <div class="section-head">
     <h2>Loved by Our Customers</h2>
   </div>
   <div class="testimonial-grid">
-    <blockquote>
-      <p>"The Royal Oud Musk attar lasted the entire day. Genuinely the best fragrance I've bought online."</p>
-      <cite>— Aisha R.</cite>
-    </blockquote>
-    <blockquote>
-      <p>"Packaging felt premium, and the scent is exactly as described. Will be reordering the Saffron Rose."</p>
-      <cite>— Karan M.</cite>
-    </blockquote>
-    <blockquote>
-      <p>"Finally an attar brand that doesn't feel synthetic. The oud collection is exceptional."</p>
-      <cite>— Fatima S.</cite>
-    </blockquote>
+    @for (t of testimonials(); track t.id) {
+      <blockquote>
+        <p>"{{ t.quote }}"</p>
+        <cite>— {{ t.authorName }}</cite>
+      </blockquote>
+    }
   </div>
 </section>
+
+@if (socialPosts().length > 0) {
+  <section class="container section">
+    <div class="section-head">
+      <h2>Follow @atarlab</h2>
+    </div>
+    <div class="social-grid">
+      @for (post of socialPosts(); track post.id) {
+        <a class="social-tile" [href]="post.linkUrl ?? '#'" [attr.aria-label]="post.caption ?? 'Instagram post'">
+          <img [src]="post.imageUrl" [alt]="post.caption ?? ''" loading="lazy" />
+        </a>
+      }
+    </div>
+  </section>
+}
 
 <section class="container section faq">
   <div class="section-head">
     <h2>Frequently Asked Questions</h2>
   </div>
-  <details>
-    <summary>How long does an attar's fragrance last?</summary>
-    <p>Our pure attars are formulated for very long longevity — most last 8–12 hours on skin.</p>
-  </details>
-  <details>
-    <summary>Do you offer Cash on Delivery?</summary>
-    <p>Yes — COD is available at checkout alongside Razorpay for cards, UPI, and wallets.</p>
-  </details>
-  <details>
-    <summary>What is your return policy?</summary>
-    <p>Unopened items can be returned within 7 days of delivery for a full refund.</p>
-  </details>
+  @for (faq of faqs(); track faq.id) {
+    <details>
+      <summary>{{ faq.question }}</summary>
+      <p>{{ faq.answer }}</p>
+    </details>
+  }
 </section>
 
 <section class="newsletter-banner">
   <div class="container">
     <h2>Join the AtarLab Circle</h2>
     <p>Be first to know about new arrivals, limited drops, and member-only offers.</p>
-    <form class="newsletter-form">
-      <input type="email" placeholder="Enter your email" />
-      <button type="submit" class="btn btn-primary">Subscribe</button>
+    <form class="newsletter-form" (submit)="subscribeNewsletter($event)">
+      <input type="email" placeholder="Enter your email" [(ngModel)]="newsletterEmail" name="email" required />
+      <button type="submit" class="btn btn-primary" [disabled]="subscribing()">
+        {{ subscribing() ? 'Subscribing…' : 'Subscribe' }}
+      </button>
     </form>
   </div>
 </section>
