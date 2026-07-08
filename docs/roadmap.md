@@ -46,13 +46,15 @@ Frontend:
 
 Not carried into Phase 2: order-funnel analytics beyond revenue/top-products/top-customers, and a dedicated admin notifications/broadcast screen — both deferred, not required for day-to-day store operation.
 
-## Phase 3 — Live tracking & delivery experience
-- `delivery_agents`, `order_deliveries` entities; admin UI to assign an agent and advance status.
-- `TrackingGateway` (Socket.IO namespace `/tracking`), room-per-order, JWT handshake auth.
-- Frontend live-tracking page: status timeline (Confirmed→Packed→Picked→Shipped→Out for Delivery→Delivered), ETA, delivery agent card, map (Leaflet/Mapbox) plotting live lat/lng.
-- Order-status push notifications (in-app `notifications` table + optional web push).
+## Phase 3 — Live tracking & delivery experience (done)
+- [x] `delivery_agents`, `order_deliveries` entities; admin UI to assign an agent and advance status.
+- [x] `TrackingGateway` (Socket.IO namespace `/tracking`), room-per-order, JWT handshake auth, personal room per user for notification pushes.
+- [x] Frontend live-tracking page: status timeline (Confirmed→Packed→Picked→Shipped→Out for Delivery→Delivered), ETA, delivery agent card, Leaflet map plotting live lat/lng (chosen over Mapbox — no API key needed, consistent with the sandbox-first approach).
+- [x] Order-status push notifications: in-app `notifications` table + real-time header bell badge over the same socket connection.
 
-**Exit criteria**: advancing an order's status in the admin panel updates the customer's tracking page in real time without a page refresh.
+**Exit criteria**: advancing an order's status in the admin panel updates the customer's tracking page in real time without a page refresh. **Verified**: a Playwright run with two separate browser sessions (admin + customer) confirmed the customer's already-open tracking page updates its status badge, delivery-agent card, and live map marker position — and the header notification badge increments — the instant the admin assigns an agent and advances the order to OUT_FOR_DELIVERY, with zero page reloads (10/10 checks passed).
+
+Since there's no real delivery fleet or address geocoding in this sandbox, `DeliverySimulatorService` interpolates the agent's position from a fixed dispatch point to a per-order deterministic destination over ~60s — this is what makes the map move without a live GPS feed. Web push (as opposed to in-app notifications) was left out as genuinely optional per the original scope.
 
 ## Phase 4 — Growth & experience polish
 - Full content module: blog, FAQ, testimonials, Instagram feed, newsletter — wired into homepage sections started as placeholders in Phase 1.
