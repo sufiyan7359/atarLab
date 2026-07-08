@@ -73,6 +73,45 @@ h1 {
   background: var(--success);
 }
 
+.delivery-agent-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--bg-muted);
+}
+.agent-avatar {
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.agent-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.agent-meta {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+.eta-pill {
+  margin-left: auto;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent-strong);
+  background: var(--bg-elevated);
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
 .back-link {
   display: inline-block;
   margin-bottom: var(--space-4);

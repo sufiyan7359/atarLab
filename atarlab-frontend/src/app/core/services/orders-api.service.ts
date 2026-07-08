@@ -2,7 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiResponse } from '../models/api-response.model';
-import { CheckoutResult, Order } from '../models/order.model';
+import { CheckoutResult, Order, OrderStatusHistoryEntry } from '../models/order.model';
+import { OrderDelivery } from '../models/tracking.model';
 
 export interface CheckoutPayload {
   shippingAddressId: string;
@@ -28,8 +29,12 @@ export class OrdersApiService {
     return this.http.get<ApiResponse<Order>>(`/orders/${id}`);
   }
 
-  getTracking(id: string): Observable<ApiResponse<{ status: string; statusHistory: unknown[] }>> {
-    return this.http.get<ApiResponse<{ status: string; statusHistory: unknown[] }>>(`/orders/${id}/tracking`);
+  getTracking(
+    id: string,
+  ): Observable<ApiResponse<{ status: string; statusHistory: OrderStatusHistoryEntry[]; delivery: OrderDelivery | null }>> {
+    return this.http.get<
+      ApiResponse<{ status: string; statusHistory: OrderStatusHistoryEntry[]; delivery: OrderDelivery | null }>
+    >(`/orders/${id}/tracking`);
   }
 
   cancel(id: string): Observable<ApiResponse<Order>> {

@@ -22,6 +22,29 @@
             </li>
           }
         </ul>
+
+        @if (delivery(); as d) {
+          @if (d.agent; as agent) {
+            <div class="delivery-agent-card">
+              <div class="agent-avatar">🛵</div>
+              <div>
+                <p class="agent-name">{{ agent.name }}</p>
+                <p class="agent-meta">{{ agent.phone }} @if (agent.vehicleNumber) { · {{ agent.vehicleNumber }} }</p>
+              </div>
+              @if (d.etaMinutes) {
+                <span class="eta-pill">ETA {{ d.etaMinutes }} min</span>
+              }
+            </div>
+          }
+          @if (o.status === 'OUT_FOR_DELIVERY' && d.currentLat != null && d.currentLng != null) {
+            <app-tracking-map
+              [lat]="d.currentLat"
+              [lng]="d.currentLng"
+              [destinationLat]="d.destinationLat"
+              [destinationLng]="d.destinationLng"
+            />
+          }
+        }
       </div>
     }
 
