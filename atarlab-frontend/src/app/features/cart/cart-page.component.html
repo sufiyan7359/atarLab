@@ -14,7 +14,7 @@
         @for (item of cartStore.summary()!.cart.items; track item.id) {
           <div class="cart-item">
             @if (item.variant.product?.images?.[0]?.url) {
-              <img [src]="item.variant.product?.images?.[0]?.url" [alt]="item.variant.product?.name" />
+              <img [src]="item.variant.product?.images?.[0]?.url" [alt]="item.variant.product?.name" loading="lazy" />
             }
             <div class="item-info">
               <a [routerLink]="['/product', item.variant.product?.slug]">{{ item.variant.product?.name }}</a>

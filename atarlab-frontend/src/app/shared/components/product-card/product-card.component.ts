@@ -5,6 +5,7 @@ import { CartStore } from '../../../core/state/cart.store';
 import { ToastService } from '../../services/toast.service';
 import { InrCurrencyPipe } from '../../pipes/inr-currency.pipe';
 import { RatingStarsComponent } from '../rating-stars/rating-stars.component';
+import { cloudinarySrcset, cloudinaryWidth } from '../../utils/cloudinary-transform.util';
 
 @Component({
   selector: 'app-product-card',
@@ -15,7 +16,13 @@ import { RatingStarsComponent } from '../rating-stars/rating-stars.component';
     <article class="card">
       <a class="media" [routerLink]="['/product', product().slug]">
         @if (product().images[0]?.url) {
-          <img [src]="product().images[0].url" [alt]="product().images[0].altText ?? product().name" loading="lazy" />
+          <img
+            [src]="thumbSrc()"
+            [srcset]="thumbSrcset()"
+            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+            [alt]="product().images[0].altText ?? product().name"
+            loading="lazy"
+          />
         }
         @if (compareAt()) {
           <span class="badge">Sale</span>
@@ -136,6 +143,9 @@ export class ProductCardComponent {
   private readonly primaryVariant = computed(() => this.product().variants?.[0]);
   startingPrice = computed(() => this.primaryVariant()?.price ?? this.product().basePrice);
   compareAt = computed(() => this.primaryVariant()?.compareAtPrice ?? null);
+
+  thumbSrc = computed(() => cloudinaryWidth(this.product().images[0]?.url ?? '', 400));
+  thumbSrcset = computed(() => cloudinarySrcset(this.product().images[0]?.url ?? '', [300, 400, 600, 800]));
 
   async quickAdd(): Promise<void> {
     const variant = this.primaryVariant();
