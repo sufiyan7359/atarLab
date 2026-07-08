@@ -47,4 +47,12 @@ export class WishlistPageComponent implements OnInit {
     this.items.update((list) => list.filter((i) => i.id !== id));
     this.toast.success('Moved to cart');
   }
+
+  currentPrice(item: WishlistItem): number {
+    return Number(item.variant?.price ?? item.product.basePrice);
+  }
+
+  priceDropped(item: WishlistItem): boolean {
+    return this.currentPrice(item) < Number(item.priceAtAdd);
+  }
 }

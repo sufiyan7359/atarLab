@@ -11,6 +11,7 @@ export interface WishlistItem {
   variantId: string | null;
   product: Product;
   variant: ProductVariant | null;
+  priceAtAdd: string;
 }
 
 @Injectable({ providedIn: 'root' })

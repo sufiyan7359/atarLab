@@ -1,7 +1,8 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { Wishlist } from './entities/wishlist.entity';
+import { Product } from '../products/entities/product.entity';
 import { ProductVariant } from '../products/entities/product-variant.entity';
 import { AddWishlistItemDto } from './dto/add-wishlist-item.dto';
 import { CartService } from '../cart/cart.service';
@@ -12,6 +13,7 @@ import { Cart } from '../cart/entities/cart.entity';
 export class WishlistService {
   constructor(
     @InjectRepository(Wishlist) private readonly repo: Repository<Wishlist>,
+    @InjectRepository(Product) private readonly productRepo: Repository<Product>,
     @InjectRepository(ProductVariant) private readonly variantRepo: Repository<ProductVariant>,
     private readonly cartService: CartService,
   ) {}
@@ -22,13 +24,19 @@ export class WishlistService {
 
   async add(userId: string, dto: AddWishlistItemDto): Promise<Wishlist> {
     const existing = await this.repo.findOne({
-      where: { userId, productId: dto.productId, variantId: dto.variantId ?? undefined },
+      where: { userId, productId: dto.productId, variantId: dto.variantId ?? IsNull() },
     });
     if (existing) return existing;
+
+    const priceAtAdd = dto.variantId
+      ? (await this.variantRepo.findOne({ where: { id: dto.variantId } }))?.price
+      : (await this.productRepo.findOne({ where: { id: dto.productId } }))?.basePrice;
+
     const item = this.repo.create({
       userId,
       productId: dto.productId,
       variantId: dto.variantId ?? null,
+      priceAtAdd: priceAtAdd ?? 0,
     });
     return this.repo.save(item);
   }

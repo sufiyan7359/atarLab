@@ -23,4 +23,8 @@ export class Wishlist extends BaseEntity {
   @ManyToOne(() => ProductVariant, { onDelete: 'CASCADE', eager: true })
   @JoinColumn({ name: 'variant_id' })
   variant: ProductVariant | null;
+
+  /** Price at the moment this was added — lets the wishlist page flag a price drop. */
+  @Column({ name: 'price_at_add', type: 'numeric', precision: 10, scale: 2 })
+  priceAtAdd: number;
 }

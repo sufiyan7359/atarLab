@@ -30,6 +30,25 @@
 .price {
   font-weight: 700;
   margin: 4px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.price-old {
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: line-through;
+  font-size: 0.85rem;
+}
+.price-drop-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--success);
+  border: 1px solid var(--success);
+  padding: 2px 10px;
+  border-radius: 999px;
 }
 .actions {
   display: flex;

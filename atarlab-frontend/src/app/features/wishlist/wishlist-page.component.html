@@ -19,7 +19,15 @@
           }
           <div class="info">
             <a [routerLink]="['/product', item.product.slug]" class="name">{{ item.product.name }}</a>
-            <p class="price">{{ (item.variant?.price ?? item.product.basePrice) | inr }}</p>
+            @if (priceDropped(item)) {
+              <p class="price">
+                <span class="price-old">{{ item.priceAtAdd | inr }}</span>
+                {{ currentPrice(item) | inr }}
+                <span class="price-drop-badge">Price dropped</span>
+              </p>
+            } @else {
+              <p class="price">{{ currentPrice(item) | inr }}</p>
+            }
             <div class="actions">
               <button type="button" class="btn btn-primary" (click)="moveToCart(item.id)">Move to Cart</button>
               <button type="button" class="btn btn-ghost" (click)="remove(item.id)">Remove</button>
