@@ -39,6 +39,7 @@ import { SettingsModule } from './modules/settings/settings.module';
 import { TrackingModule } from './modules/tracking/tracking.module';
 import { DeliveryModule } from './modules/delivery/delivery.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { ContentModule } from './modules/content/content.module';
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     TrackingModule,
     DeliveryModule,
     NotificationsModule,
+    ContentModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
