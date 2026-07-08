@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { Review } from './entities/review.entity';
 import { OrderItem } from '../orders/entities/order-item.entity';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -40,7 +40,7 @@ export class ReviewsService {
 
     const orderItemId = verifiedOrderItem?.id ?? null;
 
-    const existing = await this.reviewRepo.findOne({ where: { productId, userId, orderItemId: orderItemId ?? undefined } });
+    const existing = await this.reviewRepo.findOne({ where: { productId, userId, orderItemId: orderItemId ?? IsNull() } });
     if (existing) throw new BadRequestException('You have already reviewed this product');
 
     const review = await this.reviewRepo.save(
