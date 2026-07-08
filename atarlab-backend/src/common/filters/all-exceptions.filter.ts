@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
+import * as Sentry from '@sentry/nestjs';
 import { Request, Response } from 'express';
 import { QueryFailedError } from 'typeorm';
 
@@ -31,6 +32,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
         `${request.method} ${request.originalUrl} -> ${status}`,
         exception instanceof Error ? exception.stack : String(exception),
       );
+      // No-op when SENTRY_DSN isn't set (see instrument.ts) — same sandbox-fallback
+      // pattern as every other optional integration in this app.
+      Sentry.captureException(exception);
     }
 
     response.status(status).json({ success: false, error });
@@ -41,8 +45,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
       const status = exception.getStatus();
       const body = exception.getResponse();
       const message =
-        typeof body === 'string' ? body : ((body as { message?: string }).message ?? exception.message);
-      const details = typeof body === 'object' ? (body as { message?: unknown }).message : undefined;
+        typeof body === 'string'
+          ? body
+          : ((body as { message?: string }).message ?? exception.message);
+      const details =
+        typeof body === 'object'
+          ? (body as { message?: unknown }).message
+          : undefined;
       return {
         status,
         error: {
@@ -58,13 +67,19 @@ export class AllExceptionsFilter implements ExceptionFilter {
       if (driverError.code === '23505') {
         return {
           status: HttpStatus.CONFLICT,
-          error: { code: 'CONFLICT', message: 'A record with the same unique value already exists' },
+          error: {
+            code: 'CONFLICT',
+            message: 'A record with the same unique value already exists',
+          },
         };
       }
       if (driverError.code === '23503') {
         return {
           status: HttpStatus.BAD_REQUEST,
-          error: { code: 'FOREIGN_KEY_VIOLATION', message: 'Referenced record does not exist' },
+          error: {
+            code: 'FOREIGN_KEY_VIOLATION',
+            message: 'Referenced record does not exist',
+          },
         };
       }
       return {
@@ -75,7 +90,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     return {
       status: HttpStatus.INTERNAL_SERVER_ERROR,
-      error: { code: 'INTERNAL_SERVER_ERROR', message: 'An unexpected error occurred' },
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'An unexpected error occurred',
+      },
     };
   }
 }

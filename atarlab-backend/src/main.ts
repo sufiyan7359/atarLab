@@ -1,3 +1,4 @@
+import './instrument';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
@@ -11,7 +12,9 @@ import { createValidationPipe } from './common/pipes/validation-pipe.factory';
 import { AppConfig } from './config/configuration';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, { rawBody: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    rawBody: true,
+  });
   const configService = app.get(ConfigService);
   const appConfig = configService.get<AppConfig>('app')!;
 
@@ -19,7 +22,9 @@ async function bootstrap() {
   app.use(compression());
   app.use(cookieParser());
   app.enableCors({ origin: appConfig.corsOrigin, credentials: true });
-  app.setGlobalPrefix(appConfig.apiPrefix, { exclude: ['health', 'health/db'] });
+  app.setGlobalPrefix(appConfig.apiPrefix, {
+    exclude: ['health', 'health/db'],
+  });
   app.useGlobalPipes(createValidationPipe());
   // Sandbox fallback storage for uploads when Cloudinary isn't configured — see CloudinaryProvider.
   app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads' });
@@ -27,7 +32,9 @@ async function bootstrap() {
   if (appConfig.env !== 'production') {
     const swaggerConfig = new DocumentBuilder()
       .setTitle('AtarLab API')
-      .setDescription('REST API for the AtarLab luxury attar & perfume e-commerce platform')
+      .setDescription(
+        'REST API for the AtarLab luxury attar & perfume e-commerce platform',
+      )
       .setVersion('1.0')
       .addBearerAuth()
       .build();
@@ -38,4 +45,4 @@ async function bootstrap() {
   await app.listen(appConfig.port);
 }
 
-bootstrap();
+void bootstrap();

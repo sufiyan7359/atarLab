@@ -37,6 +37,8 @@
     "@nestjs/throttler": "^6.5.0",
     "@nestjs/typeorm": "^11.0.3",
     "@nestjs/websockets": "^11.1.27",
+    "@sentry/nestjs": "^10.64.0",
+    "@sentry/profiling-node": "^10.64.0",
     "argon2": "^0.44.0",
     "cache-manager": "^7.2.9",
     "class-transformer": "^0.5.1",

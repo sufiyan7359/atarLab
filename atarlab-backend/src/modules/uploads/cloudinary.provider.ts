@@ -16,7 +16,11 @@ export class CloudinaryProvider implements UploadPort {
 
   constructor(private readonly configService: ConfigService) {
     const app = this.configService.get<AppConfig>('app')!;
-    this.configured = !!(app.cloudinary.cloudName && app.cloudinary.apiKey && app.cloudinary.apiSecret);
+    this.configured = !!(
+      app.cloudinary.cloudName &&
+      app.cloudinary.apiKey &&
+      app.cloudinary.apiSecret
+    );
     if (this.configured) {
       cloudinary.config({
         cloud_name: app.cloudinary.cloudName,
@@ -24,7 +28,9 @@ export class CloudinaryProvider implements UploadPort {
         api_secret: app.cloudinary.apiSecret,
       });
     } else {
-      this.logger.warn('Cloudinary credentials not configured — uploads are saved to local disk instead.');
+      this.logger.warn(
+        'Cloudinary credentials not configured — uploads are saved to local disk instead.',
+      );
     }
   }
 
@@ -34,7 +40,10 @@ export class CloudinaryProvider implements UploadPort {
         const stream = cloudinary.uploader.upload_stream(
           { folder: 'atarlab', resource_type: 'image' },
           (error, result) => {
-            if (error || !result) return reject(error ?? new Error('Cloudinary upload failed'));
+            if (error || !result)
+              return reject(
+                new Error(error?.message ?? 'Cloudinary upload failed'),
+              );
             resolve({ url: result.secure_url, publicId: result.public_id });
           },
         );

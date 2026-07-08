@@ -48,14 +48,23 @@ export class AuthController {
   @Post('register')
   async register(@Body() dto: RegisterDto) {
     const { user } = await this.authService.register(dto);
-    return { id: user.id, email: user.email, phone: user.phone, fullName: user.fullName };
+    return {
+      id: user.id,
+      email: user.email,
+      phone: user.phone,
+      fullName: user.fullName,
+    };
   }
 
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() dto: LoginDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() dto: LoginDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const result = await this.authService.login(dto, this.meta(req));
     return this.respondWithTokens(res, result);
   }
@@ -96,17 +105,31 @@ export class AuthController {
     @Req() req: Request & { user: GoogleProfile },
     @Res() res: Response,
   ) {
-    const result = await this.authService.validateGoogleLogin(req.user, this.meta(req));
-    this.setRefreshCookie(res, result.refreshCookieValue, result.refreshExpiresAt);
+    const result = await this.authService.validateGoogleLogin(
+      req.user,
+      this.meta(req),
+    );
+    this.setRefreshCookie(
+      res,
+      result.refreshCookieValue,
+      result.refreshExpiresAt,
+    );
     const app = this.configService.get<AppConfig>('app')!;
-    res.redirect(`${app.frontendUrl}/auth/google/callback?token=${result.accessToken}`);
+    res.redirect(
+      `${app.frontendUrl}/auth/google/callback?token=${result.accessToken}`,
+    );
   }
 
   @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const cookieValue = req.cookies?.[REFRESH_COOKIE];
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const cookieValue = (req.cookies as Record<string, string> | undefined)?.[
+      REFRESH_COOKIE
+    ];
     const result = await this.authService.refresh(cookieValue, this.meta(req));
     return this.respondWithTokens(res, result);
   }
@@ -115,7 +138,9 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const cookieValue = req.cookies?.[REFRESH_COOKIE];
+    const cookieValue = (req.cookies as Record<string, string> | undefined)?.[
+      REFRESH_COOKIE
+    ];
     await this.authService.logout(cookieValue);
     res.clearCookie(REFRESH_COOKIE);
     return { message: 'Logged out' };
@@ -156,7 +181,11 @@ export class AuthController {
     return { userAgent: req.headers['user-agent'], ip: req.ip };
   }
 
-  private setRefreshCookie(res: Response, value: string, expiresAt: Date): void {
+  private setRefreshCookie(
+    res: Response,
+    value: string,
+    expiresAt: Date,
+  ): void {
     const app = this.configService.get<AppConfig>('app')!;
     res.cookie(REFRESH_COOKIE, value, {
       httpOnly: true,
@@ -173,11 +202,19 @@ export class AuthController {
   }
 
   private respondWithTokens(res: Response, result: TokenPair & { user: User }) {
-    this.setRefreshCookie(res, result.refreshCookieValue, result.refreshExpiresAt);
-    return { accessToken: result.accessToken, user: this.sanitizeUser(result.user) };
+    this.setRefreshCookie(
+      res,
+      result.refreshCookieValue,
+      result.refreshExpiresAt,
+    );
+    return {
+      accessToken: result.accessToken,
+      user: this.sanitizeUser(result.user),
+    };
   }
 
   private sanitizeUser(user: User): Omit<User, 'passwordHash'> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- discarded on purpose
     const { passwordHash: _passwordHash, ...safe } = user;
     return safe;
   }

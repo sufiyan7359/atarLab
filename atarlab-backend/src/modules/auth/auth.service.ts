@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
@@ -33,10 +37,14 @@ export class AuthService {
 
   async register(dto: RegisterDto): Promise<{ user: User }> {
     if (dto.email && (await this.usersService.findByEmail(dto.email))) {
-      throw new BadRequestException('An account with this email already exists');
+      throw new BadRequestException(
+        'An account with this email already exists',
+      );
     }
     if (dto.phone && (await this.usersService.findByPhone(dto.phone))) {
-      throw new BadRequestException('An account with this phone already exists');
+      throw new BadRequestException(
+        'An account with this phone already exists',
+      );
     }
     const user = await this.usersService.createLocal({
       email: dto.email,
@@ -53,7 +61,10 @@ export class AuthService {
     return { user };
   }
 
-  async login(dto: LoginDto, meta: RequestMeta): Promise<TokenPair & { user: User }> {
+  async login(
+    dto: LoginDto,
+    meta: RequestMeta,
+  ): Promise<TokenPair & { user: User }> {
     const user = dto.identifier.includes('@')
       ? await this.usersService.findByEmail(dto.identifier)
       : await this.usersService.findByPhone(dto.identifier);
@@ -75,14 +86,20 @@ export class AuthService {
     await this.otpService.request(identifier, purpose);
   }
 
-  async verifyOtp(dto: OtpVerifyDto, meta: RequestMeta): Promise<TokenPair & { user: User }> {
+  async verifyOtp(
+    dto: OtpVerifyDto,
+    meta: RequestMeta,
+  ): Promise<TokenPair & { user: User }> {
     await this.otpService.verify(dto.identifier, dto.purpose, dto.code);
 
     let user = dto.identifier.includes('@')
       ? await this.usersService.findByEmail(dto.identifier)
       : await this.usersService.findByPhone(dto.identifier);
 
-    if (!user && (dto.purpose === OtpPurpose.REGISTER || dto.purpose === OtpPurpose.LOGIN)) {
+    if (
+      !user &&
+      (dto.purpose === OtpPurpose.REGISTER || dto.purpose === OtpPurpose.LOGIN)
+    ) {
       user = dto.identifier.includes('@')
         ? await this.usersService.createFromGoogle({
             email: dto.identifier,
@@ -95,7 +112,8 @@ export class AuthService {
             password: argonRandomPassword(),
           });
     }
-    if (!user) throw new BadRequestException('No account found for this identifier');
+    if (!user)
+      throw new BadRequestException('No account found for this identifier');
 
     if (dto.purpose === OtpPurpose.VERIFY_PHONE) {
       await this.usersService.markPhoneVerified(user.id);
@@ -105,12 +123,18 @@ export class AuthService {
     return { ...tokens, user };
   }
 
-  async refresh(cookieValue: string, meta: RequestMeta): Promise<TokenPair & { user: User }> {
-    const { tokens, user } = await this.tokenService.rotateRefreshToken(cookieValue, meta);
+  async refresh(
+    cookieValue: string | undefined,
+    meta: RequestMeta,
+  ): Promise<TokenPair & { user: User }> {
+    const { tokens, user } = await this.tokenService.rotateRefreshToken(
+      cookieValue,
+      meta,
+    );
     return { ...tokens, user };
   }
 
-  async logout(cookieValue: string): Promise<void> {
+  async logout(cookieValue: string | undefined): Promise<void> {
     await this.tokenService.revoke(cookieValue);
   }
 
@@ -133,12 +157,19 @@ export class AuthService {
     await this.usersService.markEmailVerified(userId);
   }
 
-  async validateGoogleLogin(profile: GoogleProfile, meta: RequestMeta): Promise<TokenPair & { user: User }> {
+  async validateGoogleLogin(
+    profile: GoogleProfile,
+    meta: RequestMeta,
+  ): Promise<TokenPair & { user: User }> {
     let user = await this.usersService.findByGoogleId(profile.googleId);
     if (!user) {
       const existing = await this.usersService.findByEmail(profile.email);
       user = existing
-        ? await this.usersService.linkGoogleAccount(existing, profile.googleId, profile.avatarUrl)
+        ? await this.usersService.linkGoogleAccount(
+            existing,
+            profile.googleId,
+            profile.avatarUrl,
+          )
         : await this.usersService.createFromGoogle({
             email: profile.email,
             fullName: profile.fullName,
@@ -150,7 +181,11 @@ export class AuthService {
     return { ...tokens, user };
   }
 
-  private signPurposeToken(userId: string, purpose: string, expiresIn: Duration): string {
+  private signPurposeToken(
+    userId: string,
+    purpose: string,
+    expiresIn: Duration,
+  ): string {
     const app = this.configService.get<AppConfig>('app')!;
     return this.jwtService.sign(
       { sub: userId, purpose },
@@ -161,9 +196,12 @@ export class AuthService {
   private verifyPurposeToken(token: string, purpose: string): string {
     const app = this.configService.get<AppConfig>('app')!;
     try {
-      const payload = this.jwtService.verify<{ sub: string; purpose: string }>(token, {
-        secret: app.jwt.accessSecret,
-      });
+      const payload = this.jwtService.verify<{ sub: string; purpose: string }>(
+        token,
+        {
+          secret: app.jwt.accessSecret,
+        },
+      );
       if (payload.purpose !== purpose) throw new Error('purpose mismatch');
       return payload.sub;
     } catch {

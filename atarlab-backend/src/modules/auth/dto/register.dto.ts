@@ -1,4 +1,11 @@
-import { IsEmail, IsOptional, IsPhoneNumber, IsString, MaxLength, MinLength, ValidateIf } from 'class-validator';
+import {
+  IsEmail,
+  IsPhoneNumber,
+  IsString,
+  MaxLength,
+  MinLength,
+  ValidateIf,
+} from 'class-validator';
 
 export class RegisterDto {
   @ValidateIf((dto: RegisterDto) => !dto.phone)

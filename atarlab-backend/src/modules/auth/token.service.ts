@@ -29,11 +29,15 @@ export class TokenService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     @InjectDataSource() private readonly dataSource: DataSource,
-    @InjectRepository(RefreshToken) private readonly refreshTokenRepo: Repository<RefreshToken>,
+    @InjectRepository(RefreshToken)
+    private readonly refreshTokenRepo: Repository<RefreshToken>,
   ) {}
 
   signAccessToken(user: User): string {
-    const payload: JwtPayload = { sub: user.id, roles: user.roles?.map((r) => r.name) ?? [] };
+    const payload: JwtPayload = {
+      sub: user.id,
+      roles: user.roles?.map((r) => r.name) ?? [],
+    };
     const app = this.configService.get<AppConfig>('app')!;
     return this.jwtService.sign(payload, {
       secret: app.jwt.accessSecret,
@@ -42,7 +46,10 @@ export class TokenService {
   }
 
   /** Issues a brand-new session family — call this on login/register/OAuth, never on rotation. */
-  async issueTokenPair(user: User, meta: { userAgent?: string; ip?: string }): Promise<TokenPair> {
+  async issueTokenPair(
+    user: User,
+    meta: { userAgent?: string; ip?: string },
+  ): Promise<TokenPair> {
     const accessToken = this.signAccessToken(user);
     const { cookieValue, expiresAt } = await this.createRefreshToken(
       this.refreshTokenRepo,
@@ -50,7 +57,11 @@ export class TokenService {
       randomUUID(),
       meta,
     );
-    return { accessToken, refreshCookieValue: cookieValue, refreshExpiresAt: expiresAt };
+    return {
+      accessToken,
+      refreshCookieValue: cookieValue,
+      refreshExpiresAt: expiresAt,
+    };
   }
 
   private async createRefreshToken(
@@ -62,7 +73,9 @@ export class TokenService {
     const app = this.configService.get<AppConfig>('app')!;
     const secret = randomBytes(32).toString('hex');
     const tokenHash = await argon2.hash(secret);
-    const expiresAt = new Date(Date.now() + this.parseExpiryMs(app.jwt.refreshExpiresIn));
+    const expiresAt = new Date(
+      Date.now() + this.parseExpiryMs(app.jwt.refreshExpiresIn),
+    );
 
     const row = repo.create({
       userId,
@@ -78,20 +91,25 @@ export class TokenService {
 
   /** Validates the cookie, rotates it, and returns a fresh pair. Throws on expiry or genuine reuse. */
   async rotateRefreshToken(
-    cookieValue: string,
+    cookieValue: string | undefined,
     meta: { userAgent?: string; ip?: string },
   ): Promise<{ tokens: TokenPair; user: User }> {
     const [id, secret] = (cookieValue ?? '').split('.');
-    if (!id || !secret) throw new UnauthorizedException('Invalid refresh token');
+    if (!id || !secret)
+      throw new UnauthorizedException('Invalid refresh token');
 
-    const row = await this.refreshTokenRepo.findOne({ where: { id }, relations: { user: true } });
+    const row = await this.refreshTokenRepo.findOne({
+      where: { id },
+      relations: { user: true },
+    });
     if (!row) throw new UnauthorizedException('Invalid refresh token');
 
     if (row.revokedAt) {
       return this.handleReuse(row, meta);
     }
 
-    if (row.expiresAt < new Date()) throw new UnauthorizedException('Refresh token expired');
+    if (row.expiresAt < new Date())
+      throw new UnauthorizedException('Refresh token expired');
 
     const valid = await argon2.verify(row.tokenHash, secret);
     if (!valid) throw new UnauthorizedException('Invalid refresh token');
@@ -117,12 +135,19 @@ export class TokenService {
       }
     }
 
-    await this.refreshTokenRepo.update({ familyId: row.familyId, revokedAt: IsNull() }, { revokedAt: new Date() });
-    throw new UnauthorizedException('Refresh token reuse detected, session revoked');
+    await this.refreshTokenRepo.update(
+      { familyId: row.familyId, revokedAt: IsNull() },
+      { revokedAt: new Date() },
+    );
+    throw new UnauthorizedException(
+      'Refresh token reuse detected, session revoked',
+    );
   }
 
   /** Walks replacedByTokenId forward to the family's current (non-revoked) token, if any. */
-  private async findCurrentInFamily(familyId: string): Promise<RefreshToken | null> {
+  private async findCurrentInFamily(
+    familyId: string,
+  ): Promise<RefreshToken | null> {
     return this.refreshTokenRepo.findOne({
       where: { familyId, revokedAt: IsNull() },
       relations: { user: true },
@@ -130,22 +155,40 @@ export class TokenService {
     });
   }
 
-  private async rotate(row: RefreshToken, meta: { userAgent?: string; ip?: string }): Promise<TokenPair> {
+  private async rotate(
+    row: RefreshToken,
+    meta: { userAgent?: string; ip?: string },
+  ): Promise<TokenPair> {
     return this.dataSource.transaction(async (manager) => {
       const repo = manager.getRepository(RefreshToken);
       const accessToken = this.signAccessToken(row.user);
-      const { cookieValue, expiresAt, id } = await this.createRefreshToken(repo, row.userId, row.familyId, meta);
-      await repo.update(row.id, { revokedAt: new Date(), replacedByTokenId: id });
-      return { accessToken, refreshCookieValue: cookieValue, refreshExpiresAt: expiresAt };
+      const { cookieValue, expiresAt, id } = await this.createRefreshToken(
+        repo,
+        row.userId,
+        row.familyId,
+        meta,
+      );
+      await repo.update(row.id, {
+        revokedAt: new Date(),
+        replacedByTokenId: id,
+      });
+      return {
+        accessToken,
+        refreshCookieValue: cookieValue,
+        refreshExpiresAt: expiresAt,
+      };
     });
   }
 
-  async revoke(cookieValue: string): Promise<void> {
+  async revoke(cookieValue: string | undefined): Promise<void> {
     const [id] = (cookieValue ?? '').split('.');
     if (!id) return;
     const row = await this.refreshTokenRepo.findOne({ where: { id } });
     if (!row) return;
-    await this.refreshTokenRepo.update({ familyId: row.familyId }, { revokedAt: new Date() });
+    await this.refreshTokenRepo.update(
+      { familyId: row.familyId },
+      { revokedAt: new Date() },
+    );
   }
 
   async revokeAllForUser(userId: string): Promise<void> {
@@ -166,7 +209,8 @@ export class TokenService {
     if (!match) return 7 * 24 * 60 * 60 * 1000;
     const value = parseInt(match[1], 10);
     const unit = match[2];
-    const unitMs = { s: 1000, m: 60_000, h: 3_600_000, d: 86_400_000 }[unit] ?? 86_400_000;
+    const unitMs =
+      { s: 1000, m: 60_000, h: 3_600_000, d: 86_400_000 }[unit] ?? 86_400_000;
     return value * unitMs;
   }
 }

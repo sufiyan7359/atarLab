@@ -26,7 +26,9 @@ const DEFAULTS: SiteSettings = {
 
 @Injectable()
 export class SettingsService {
-  constructor(@InjectRepository(Setting) private readonly repo: Repository<Setting>) {}
+  constructor(
+    @InjectRepository(Setting) private readonly repo: Repository<Setting>,
+  ) {}
 
   async getAll(): Promise<SiteSettings> {
     const keys = Object.keys(DEFAULTS);
@@ -36,9 +38,14 @@ export class SettingsService {
   }
 
   async update(dto: UpdateSettingsDto): Promise<SiteSettings> {
-    const entries = Object.entries(dto).filter(([, value]) => value !== undefined);
+    const entries = Object.entries(dto).filter(
+      ([, value]) => value !== undefined,
+    );
     await Promise.all(
       entries.map(([key, value]) =>
+        // Settings are a generic key-value store — `value`'s real type varies per key
+        // (string/number/boolean) and DTO validation already constrained it upstream.
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         this.repo.upsert({ key, value }, ['key']),
       ),
     );
