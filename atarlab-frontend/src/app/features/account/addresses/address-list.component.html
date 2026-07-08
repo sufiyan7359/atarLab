@@ -21,32 +21,32 @@
 } @else {
   <form class="card-surface address-form" (submit)="$event.preventDefault(); save()">
     <div class="field">
-      <label>Label</label>
-      <input type="text" [(ngModel)]="form.label" name="label" />
+      <label for="addrLabel">Label</label>
+      <input id="addrLabel" type="text" [(ngModel)]="form.label" name="label" />
     </div>
     <div class="field">
-      <label>Full Name</label>
-      <input type="text" required [(ngModel)]="form.fullName" name="fullName" />
+      <label for="addrFullName">Full Name</label>
+      <input id="addrFullName" type="text" required [(ngModel)]="form.fullName" name="fullName" />
     </div>
     <div class="field">
-      <label>Phone</label>
-      <input type="tel" required [(ngModel)]="form.phone" name="phone" />
+      <label for="addrPhone">Phone</label>
+      <input id="addrPhone" type="tel" required [(ngModel)]="form.phone" name="phone" />
     </div>
     <div class="field">
-      <label>Address Line 1</label>
-      <input type="text" required [(ngModel)]="form.line1" name="line1" />
+      <label for="addrLine1">Address Line 1</label>
+      <input id="addrLine1" type="text" required [(ngModel)]="form.line1" name="line1" />
     </div>
     <div class="field">
-      <label>City</label>
-      <input type="text" required [(ngModel)]="form.city" name="city" />
+      <label for="addrCity">City</label>
+      <input id="addrCity" type="text" required [(ngModel)]="form.city" name="city" />
     </div>
     <div class="field">
-      <label>State</label>
-      <input type="text" required [(ngModel)]="form.state" name="state" />
+      <label for="addrState">State</label>
+      <input id="addrState" type="text" required [(ngModel)]="form.state" name="state" />
     </div>
     <div class="field">
-      <label>Postal Code</label>
-      <input type="text" required [(ngModel)]="form.postalCode" name="postalCode" />
+      <label for="addrPostalCode">Postal Code</label>
+      <input id="addrPostalCode" type="text" required [(ngModel)]="form.postalCode" name="postalCode" />
     </div>
     <div class="actions">
       <button type="submit" class="btn btn-primary">Save Address</button>

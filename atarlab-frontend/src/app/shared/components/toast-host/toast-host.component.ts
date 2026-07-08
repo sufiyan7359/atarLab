@@ -6,11 +6,11 @@ import { ToastService } from '../../services/toast.service';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="toast-host">
+    <div class="toast-host" role="status" aria-live="polite">
       @for (toast of toastService.toasts(); track toast.id) {
-        <div class="toast" [class]="toast.type" (click)="toastService.dismiss(toast.id)">
+        <button type="button" class="toast" [class]="toast.type" (click)="toastService.dismiss(toast.id)">
           {{ toast.message }}
-        </div>
+        </button>
       }
     </div>
   `,
@@ -30,6 +30,9 @@ import { ToastService } from '../../services/toast.service';
         max-width: 90vw;
       }
       .toast {
+        display: block;
+        font-family: inherit;
+        text-align: left;
         padding: 12px 20px;
         border-radius: var(--radius-md);
         background: var(--bg-elevated);

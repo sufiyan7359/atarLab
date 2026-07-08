@@ -9,7 +9,10 @@
   --gold-200: #ecd9a0;
   --gold-400: #cda94b;
   --gold-500: #b9922f;
-  --gold-600: #9c7a25;
+  // Darkened from the original #9c7a25 — that shade only cleared 4.02:1 against white,
+  // below WCAG AA's 4.5:1 for normal text, and --accent-strong is used as body-sized
+  // link/price text throughout (footer, product cards, nav). This clears 4.66:1.
+  --gold-600: #8f7020;
 
   --radius-sm: 6px;
   --radius-md: 10px;

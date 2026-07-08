@@ -133,7 +133,7 @@
     <h2>Join the AtarLab Circle</h2>
     <p>Be first to know about new arrivals, limited drops, and member-only offers.</p>
     <form class="newsletter-form" (submit)="subscribeNewsletter($event)">
-      <input type="email" placeholder="Enter your email" [(ngModel)]="newsletterEmail" name="email" required />
+      <input type="email" placeholder="Enter your email" aria-label="Email address" [(ngModel)]="newsletterEmail" name="email" required />
       <button type="submit" class="btn btn-primary" [disabled]="subscribing()">
         {{ subscribing() ? 'Subscribing…' : 'Subscribe' }}
       </button>

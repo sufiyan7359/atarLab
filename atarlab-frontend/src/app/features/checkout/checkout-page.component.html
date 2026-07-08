@@ -27,28 +27,28 @@
         } @else {
           <form class="new-address-form" (submit)="$event.preventDefault(); saveNewAddress()">
             <div class="field">
-              <label>Full Name</label>
-              <input type="text" required [(ngModel)]="newAddress.fullName" name="fullName" />
+              <label for="newAddrFullName">Full Name</label>
+              <input id="newAddrFullName" type="text" required [(ngModel)]="newAddress.fullName" name="fullName" />
             </div>
             <div class="field">
-              <label>Phone</label>
-              <input type="tel" required [(ngModel)]="newAddress.phone" name="phone" />
+              <label for="newAddrPhone">Phone</label>
+              <input id="newAddrPhone" type="tel" required [(ngModel)]="newAddress.phone" name="phone" />
             </div>
             <div class="field">
-              <label>Address Line 1</label>
-              <input type="text" required [(ngModel)]="newAddress.line1" name="line1" />
+              <label for="newAddrLine1">Address Line 1</label>
+              <input id="newAddrLine1" type="text" required [(ngModel)]="newAddress.line1" name="line1" />
             </div>
             <div class="field">
-              <label>City</label>
-              <input type="text" required [(ngModel)]="newAddress.city" name="city" />
+              <label for="newAddrCity">City</label>
+              <input id="newAddrCity" type="text" required [(ngModel)]="newAddress.city" name="city" />
             </div>
             <div class="field">
-              <label>State</label>
-              <input type="text" required [(ngModel)]="newAddress.state" name="state" />
+              <label for="newAddrState">State</label>
+              <input id="newAddrState" type="text" required [(ngModel)]="newAddress.state" name="state" />
             </div>
             <div class="field">
-              <label>Postal Code</label>
-              <input type="text" required [(ngModel)]="newAddress.postalCode" name="postalCode" />
+              <label for="newAddrPostalCode">Postal Code</label>
+              <input id="newAddrPostalCode" type="text" required [(ngModel)]="newAddress.postalCode" name="postalCode" />
             </div>
             <button type="submit" class="btn btn-primary">Save Address</button>
             @if (addresses().length > 0) {

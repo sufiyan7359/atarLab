@@ -141,7 +141,7 @@
                 @if (authStore.isAuthenticated()) {
                   <form class="review-form" (submit)="$event.preventDefault(); submitReview()">
                     <h4>Write a Review</h4>
-                    <select [ngModel]="newRating()" (ngModelChange)="newRating.set($event)" name="rating">
+                    <select aria-label="Rating" [ngModel]="newRating()" (ngModelChange)="newRating.set($event)" name="rating">
                       @for (r of [5, 4, 3, 2, 1]; track r) {
                         <option [value]="r">{{ r }} stars</option>
                       }
@@ -149,12 +149,14 @@
                     <input
                       type="text"
                       placeholder="Title (optional)"
+                      aria-label="Review title"
                       [ngModel]="newTitle()"
                       (ngModelChange)="newTitle.set($event)"
                       name="title"
                     />
                     <textarea
                       placeholder="Share your experience…"
+                      aria-label="Review comment"
                       [ngModel]="newComment()"
                       (ngModelChange)="newComment.set($event)"
                       name="comment"

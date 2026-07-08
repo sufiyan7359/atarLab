@@ -4,12 +4,12 @@
   <h3>Profile</h3>
   <form (submit)="$event.preventDefault(); saveProfile()">
     <div class="field">
-      <label>Email</label>
-      <input type="email" [value]="authStore.user()?.email" disabled />
+      <label for="profileEmail">Email</label>
+      <input id="profileEmail" type="email" [value]="authStore.user()?.email" disabled />
     </div>
     <div class="field">
-      <label>Full Name</label>
-      <input type="text" [ngModel]="fullName()" (ngModelChange)="fullName.set($event)" name="fullName" />
+      <label for="profileFullName">Full Name</label>
+      <input id="profileFullName" type="text" [ngModel]="fullName()" (ngModelChange)="fullName.set($event)" name="fullName" />
     </div>
     <button type="submit" class="btn btn-primary" [disabled]="savingProfile()">
       {{ savingProfile() ? 'Saving…' : 'Save Changes' }}
@@ -21,8 +21,9 @@
   <h3>Change Password</h3>
   <form (submit)="$event.preventDefault(); changePassword()">
     <div class="field">
-      <label>Current Password</label>
+      <label for="currentPassword">Current Password</label>
       <input
+        id="currentPassword"
         type="password"
         [ngModel]="currentPassword()"
         (ngModelChange)="currentPassword.set($event)"
@@ -30,8 +31,9 @@
       />
     </div>
     <div class="field">
-      <label>New Password</label>
+      <label for="newPassword">New Password</label>
       <input
+        id="newPassword"
         type="password"
         minlength="8"
         [ngModel]="newPassword()"
