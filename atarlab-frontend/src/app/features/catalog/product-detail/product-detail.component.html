@@ -172,6 +172,17 @@
     </section>
   </div>
 
+  @if (p.frequentlyBoughtTogether && p.frequentlyBoughtTogether.length > 0) {
+    <section class="container related-section">
+      <h2>Frequently Bought Together</h2>
+      <div class="product-grid">
+        @for (fbt of p.frequentlyBoughtTogether; track fbt.id) {
+          <app-product-card [product]="fbt" />
+        }
+      </div>
+    </section>
+  }
+
   @if (p.related && p.related.length > 0) {
     <section class="container related-section">
       <h2>You May Also Like</h2>

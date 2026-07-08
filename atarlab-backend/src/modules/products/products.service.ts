@@ -1,15 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { ProductVariant } from './entities/product-variant.entity';
 import { ProductImage } from './entities/product-image.entity';
 import { FragranceNote } from './entities/fragrance-note.entity';
 import { ProductIngredient } from './entities/product-ingredient.entity';
+import { OrderItem } from '../orders/entities/order-item.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { QueryProductsDto } from './dto/query-products.dto';
 import { PaginatedResult } from '../../common/dto/pagination.dto';
+
+const FBT_LIMIT = 4;
 
 const DETAIL_RELATIONS = {
   brand: true,
@@ -28,6 +31,7 @@ export class ProductsService {
     @InjectRepository(ProductImage) private readonly imageRepo: Repository<ProductImage>,
     @InjectRepository(FragranceNote) private readonly noteRepo: Repository<FragranceNote>,
     @InjectRepository(ProductIngredient) private readonly ingredientRepo: Repository<ProductIngredient>,
+    @InjectRepository(OrderItem) private readonly orderItemRepo: Repository<OrderItem>,
   ) {}
 
   async findAll(
@@ -102,7 +106,7 @@ export class ProductsService {
     return { items, total, page: query.page, limit: query.limit };
   }
 
-  async findBySlug(slug: string): Promise<Product & { related: Product[] }> {
+  async findBySlug(slug: string): Promise<Product & { related: Product[]; frequentlyBoughtTogether: Product[] }> {
     const product = await this.productRepo.findOne({
       where: { slug, isActive: true },
       relations: DETAIL_RELATIONS,
@@ -120,7 +124,44 @@ export class ProductsService {
     return {
       ...product,
       related: related.filter((p) => p.id !== product.id).slice(0, 8),
+      frequentlyBoughtTogether: await this.findFrequentlyBoughtTogether(product),
     };
+  }
+
+  /** Ranks other products by how often they've shipped in the same order as this one.
+   *  Falls back to filling remaining slots from the same category when purchase history
+   *  is too sparse (e.g. a brand-new product) to have any real co-occurrence signal. */
+  private async findFrequentlyBoughtTogether(product: Product): Promise<Product[]> {
+    const coPurchased = await this.orderItemRepo
+      .createQueryBuilder('oi1')
+      .innerJoin('order_items', 'oi2', 'oi2.order_id = oi1.order_id AND oi2.variant_id != oi1.variant_id')
+      .innerJoin('product_variants', 'v1', 'v1.id = oi1.variant_id')
+      .innerJoin('product_variants', 'v2', 'v2.id = oi2.variant_id')
+      .where('v1.product_id = :productId', { productId: product.id })
+      .andWhere('v2.product_id != :productId', { productId: product.id })
+      .select('v2.product_id', 'productId')
+      .addSelect('COUNT(DISTINCT oi1.order_id)', 'coCount')
+      .groupBy('v2.product_id')
+      .orderBy('"coCount"', 'DESC')
+      .limit(FBT_LIMIT)
+      .getRawMany<{ productId: string; coCount: string }>();
+
+    const ids = coPurchased.map((row) => row.productId);
+    const products = ids.length
+      ? await this.productRepo.find({ where: { id: In(ids), isActive: true }, relations: { images: true, variants: true } })
+      : [];
+    const ordered = ids.map((id) => products.find((p) => p.id === id)).filter((p): p is Product => !!p);
+
+    if (ordered.length >= FBT_LIMIT || !product.categoryId) return ordered;
+
+    const excludeIds = [product.id, ...ordered.map((p) => p.id)];
+    const fallback = await this.productRepo.find({
+      where: { categoryId: product.categoryId, isActive: true, id: Not(In(excludeIds)) },
+      relations: { images: true, variants: true },
+      take: FBT_LIMIT - ordered.length,
+    });
+
+    return [...ordered, ...fallback];
   }
 
   async findByIdAdmin(id: string): Promise<Product> {

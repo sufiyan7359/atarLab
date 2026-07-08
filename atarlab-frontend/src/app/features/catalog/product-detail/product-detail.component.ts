@@ -31,7 +31,7 @@ export class ProductDetailComponent implements OnInit {
   private readonly toast = inject(ToastService);
   authStore = inject(AuthStore);
 
-  product = signal<(Product & { related: Product[] }) | null>(null);
+  product = signal<(Product & { related: Product[]; frequentlyBoughtTogether: Product[] }) | null>(null);
   loading = signal(true);
   activeImageIndex = signal(0);
   selectedVariant = signal<ProductVariant | null>(null);

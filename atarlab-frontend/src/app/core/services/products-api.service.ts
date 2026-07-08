@@ -31,8 +31,12 @@ export class ProductsApiService {
     return this.http.get<ApiResponse<Product[]>>('/products', { params });
   }
 
-  getBySlug(slug: string): Observable<ApiResponse<Product & { related: Product[] }>> {
-    return this.http.get<ApiResponse<Product & { related: Product[] }>>(`/products/${slug}`);
+  getBySlug(
+    slug: string,
+  ): Observable<ApiResponse<Product & { related: Product[]; frequentlyBoughtTogether: Product[] }>> {
+    return this.http.get<ApiResponse<Product & { related: Product[]; frequentlyBoughtTogether: Product[] }>>(
+      `/products/${slug}`,
+    );
   }
 
   getReviews(slug: string, page = 1): Observable<ApiResponse<Review[]>> {
