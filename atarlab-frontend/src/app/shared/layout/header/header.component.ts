@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { Router, RouterLink } from '@angular/router';
 import { AuthStore } from '../../../core/state/auth.store';
 import { CartStore } from '../../../core/state/cart.store';
+import { NotificationsStore } from '../../../core/state/notifications.store';
+import { AppNotification } from '../../../core/models/tracking.model';
 import { ThemeService } from '../../services/theme.service';
 
 @Component({
@@ -35,6 +37,37 @@ import { ThemeService } from '../../services/theme.service';
               <span class="badge">{{ cartStore.itemCount() }}</span>
             }
           </a>
+          @if (authStore.isAuthenticated()) {
+            <div class="notification-wrap">
+              <button type="button" class="icon-btn" aria-label="Notifications" (click)="toggleNotifications()">
+                🔔
+                @if (notificationsStore.unreadCount() > 0) {
+                  <span class="badge">{{ notificationsStore.unreadCount() }}</span>
+                }
+              </button>
+              @if (notificationsOpen()) {
+                <div class="backdrop" (click)="notificationsOpen.set(false)"></div>
+                <div class="notification-panel">
+                  <div class="panel-head">
+                    <span>Notifications</span>
+                    @if (notificationsStore.unreadCount() > 0) {
+                      <button type="button" class="mark-all" (click)="notificationsStore.markAllRead()">Mark all read</button>
+                    }
+                  </div>
+                  @if (notificationsStore.notifications().length === 0) {
+                    <p class="empty">No notifications yet.</p>
+                  } @else {
+                    @for (n of notificationsStore.notifications(); track n.id) {
+                      <button type="button" class="notification-item" [class.unread]="!n.isRead" (click)="openNotification(n)">
+                        <span class="n-title">{{ n.title }}</span>
+                        <span class="n-message">{{ n.message }}</span>
+                      </button>
+                    }
+                  }
+                </div>
+              }
+            </div>
+          }
           @if (isAdmin()) {
             <a routerLink="/admin/dashboard" class="admin-link">Admin</a>
           }
@@ -148,16 +181,88 @@ import { ThemeService } from '../../services/theme.service';
       .admin-link:hover {
         background: var(--accent-strong);
       }
+      .notification-wrap {
+        position: relative;
+      }
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 199;
+      }
+      .notification-panel {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        width: 320px;
+        max-height: 420px;
+        overflow-y: auto;
+        background: var(--bg-elevated);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
+        z-index: 200;
+      }
+      .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--space-3) var(--space-4);
+        border-bottom: 1px solid var(--border);
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
+      .mark-all {
+        border: none;
+        background: none;
+        color: var(--accent-strong);
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .empty {
+        padding: var(--space-4);
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        text-align: center;
+      }
+      .notification-item {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        width: 100%;
+        text-align: left;
+        padding: var(--space-3) var(--space-4);
+        border: none;
+        border-bottom: 1px solid var(--border);
+        background: none;
+        cursor: pointer;
+      }
+      .notification-item:last-child {
+        border-bottom: none;
+      }
+      .notification-item.unread {
+        background: var(--bg-muted);
+      }
+      .n-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+      }
+      .n-message {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+      }
     `,
   ],
 })
 export class HeaderComponent {
   authStore = inject(AuthStore);
   cartStore = inject(CartStore);
+  notificationsStore = inject(NotificationsStore);
   theme = inject(ThemeService);
   private readonly router = inject(Router);
 
   query = signal('');
+  notificationsOpen = signal(false);
   isAdmin = computed(() => this.authStore.hasRole('SUPER_ADMIN', 'ADMIN', 'STAFF'));
   initials = computed(() => {
     const name = this.authStore.user()?.fullName ?? '';
@@ -173,5 +278,15 @@ export class HeaderComponent {
     event.preventDefault();
     const q = this.query().trim();
     if (q) this.router.navigate(['/search'], { queryParams: { q } });
+  }
+
+  toggleNotifications(): void {
+    this.notificationsOpen.update((open) => !open);
+  }
+
+  openNotification(notification: AppNotification): void {
+    this.notificationsOpen.set(false);
+    if (!notification.isRead) void this.notificationsStore.markRead(notification.id);
+    if (notification.orderId) this.router.navigate(['/account/orders', notification.orderId]);
   }
 }

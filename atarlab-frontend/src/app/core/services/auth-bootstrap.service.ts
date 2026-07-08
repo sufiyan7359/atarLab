@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { AuthStore } from '../state/auth.store';
 import { AuthRefreshCoordinator } from './auth-refresh-coordinator.service';
 import { CartStore } from '../state/cart.store';
+import { NotificationsStore } from '../state/notifications.store';
 
 /**
  * Restores the session (via the refresh-token cookie) before the app becomes interactive.
@@ -24,6 +25,7 @@ export class AuthBootstrapService {
   private readonly authStore = inject(AuthStore);
   private readonly refreshCoordinator = inject(AuthRefreshCoordinator);
   private readonly cartStore = inject(CartStore);
+  private readonly notificationsStore = inject(NotificationsStore);
 
   async initialize(): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) {
@@ -34,6 +36,7 @@ export class AuthBootstrapService {
     try {
       const res = await firstValueFrom(this.refreshCoordinator.refresh());
       this.authStore.setSession(res.data.accessToken, res.data.user);
+      void this.notificationsStore.refresh();
     } catch {
       this.authStore.clear();
     }

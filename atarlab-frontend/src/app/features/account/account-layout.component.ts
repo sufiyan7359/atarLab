@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { AuthApiService } from '../../core/services/auth-api.service';
 import { AuthStore } from '../../core/state/auth.store';
 import { CartStore } from '../../core/state/cart.store';
+import { NotificationsStore } from '../../core/state/notifications.store';
 
 @Component({
   selector: 'app-account-layout',
@@ -76,6 +77,7 @@ export class AccountLayoutComponent {
   private readonly authStore = inject(AuthStore);
   private readonly authApi = inject(AuthApiService);
   private readonly cartStore = inject(CartStore);
+  private readonly notificationsStore = inject(NotificationsStore);
   private readonly router = inject(Router);
 
   isAdmin = computed(() => this.authStore.hasRole('SUPER_ADMIN', 'ADMIN', 'STAFF'));
@@ -86,6 +88,7 @@ export class AccountLayoutComponent {
     } finally {
       this.authStore.clear();
       this.cartStore.clearLocal();
+      this.notificationsStore.clear();
       this.router.navigate(['/']);
     }
   }
