@@ -20,6 +20,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Customers', path: '/admin/customers', icon: '👥' },
   { label: 'Orders', path: '/admin/orders', icon: '🧾' },
   { label: 'Reviews', path: '/admin/reviews', icon: '⭐' },
+  { label: 'Content', path: '/admin/content', icon: '📝' },
   { label: 'Reports', path: '/admin/reports', icon: '📈' },
   { label: 'Roles & Permissions', path: '/admin/roles', icon: '🔐' },
   { label: 'Activity Logs', path: '/admin/activity-logs', icon: '🕒' },

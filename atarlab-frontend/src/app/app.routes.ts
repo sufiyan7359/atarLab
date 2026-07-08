@@ -202,6 +202,12 @@ export const routes: Routes = [
         title: 'Moderate Reviews — AtarLab',
       },
       {
+        path: 'content',
+        loadComponent: () =>
+          import('./features/admin/content/admin-content.component').then((m) => m.AdminContentComponent),
+        title: 'Content — AtarLab',
+      },
+      {
         path: 'reports',
         loadComponent: () =>
           import('./features/admin/reports/admin-reports.component').then((m) => m.AdminReportsComponent),

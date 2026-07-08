@@ -1,0 +1,248 @@
+<div class="page-head">
+  <h1>Content</h1>
+</div>
+
+<div class="range-toggle" style="margin-bottom: var(--space-6);">
+  <button type="button" [class.active]="tab() === 'testimonials'" (click)="setTab('testimonials')">Testimonials</button>
+  <button type="button" [class.active]="tab() === 'faqs'" (click)="setTab('faqs')">FAQs</button>
+  <button type="button" [class.active]="tab() === 'social'" (click)="setTab('social')">Social Feed</button>
+  <button type="button" [class.active]="tab() === 'blog'" (click)="setTab('blog')">Blog</button>
+  <button type="button" [class.active]="tab() === 'newsletter'" (click)="setTab('newsletter')">Newsletter</button>
+</div>
+
+@if (tab() === 'testimonials') {
+  <div class="page-head">
+    <h2 style="font-size: 1.1rem;">Testimonials</h2>
+    <button type="button" class="btn btn-primary" (click)="startCreateTestimonial()">+ New Testimonial</button>
+  </div>
+
+  @if (showForm()) {
+    <form class="card-surface admin-form" style="margin-bottom: var(--space-6)" (submit)="$event.preventDefault(); saveTestimonial()">
+      <div class="field">
+        <label>Author Name</label>
+        <input type="text" [(ngModel)]="testimonialForm.authorName" name="authorName" required />
+      </div>
+      <div class="field">
+        <label>Rating (1-5)</label>
+        <input type="number" min="1" max="5" [(ngModel)]="testimonialForm.rating" name="rating" />
+      </div>
+      <div class="field field-full">
+        <label>Quote</label>
+        <textarea rows="3" [(ngModel)]="testimonialForm.quote" name="quote" required></textarea>
+      </div>
+      <div class="field checkbox-row">
+        <label><input type="checkbox" [(ngModel)]="testimonialForm.isActive" name="isActive" /> Active</label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-ghost" (click)="showForm.set(false)">Cancel</button>
+      </div>
+    </form>
+  }
+
+  <div class="table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>Author</th><th>Quote</th><th>Rating</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        @for (t of testimonials(); track t.id) {
+          <tr>
+            <td>{{ t.authorName }}</td>
+            <td style="max-width: 320px;">{{ t.quote }}</td>
+            <td>{{ t.rating }}★</td>
+            <td><span class="badge-pill" [class.on]="t.isActive" [class.off]="!t.isActive">{{ t.isActive ? 'Active' : 'Inactive' }}</span></td>
+            <td class="actions">
+              <button type="button" class="link-btn" (click)="startEditTestimonial(t)">Edit</button>
+              <button type="button" class="link-btn danger" (click)="removeTestimonial(t.id)">Delete</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+@if (tab() === 'faqs') {
+  <div class="page-head">
+    <h2 style="font-size: 1.1rem;">FAQs</h2>
+    <button type="button" class="btn btn-primary" (click)="startCreateFaq()">+ New FAQ</button>
+  </div>
+
+  @if (showForm()) {
+    <form class="card-surface admin-form" style="margin-bottom: var(--space-6)" (submit)="$event.preventDefault(); saveFaq()">
+      <div class="field field-full">
+        <label>Question</label>
+        <input type="text" [(ngModel)]="faqForm.question" name="question" required />
+      </div>
+      <div class="field field-full">
+        <label>Answer</label>
+        <textarea rows="3" [(ngModel)]="faqForm.answer" name="answer" required></textarea>
+      </div>
+      <div class="field checkbox-row">
+        <label><input type="checkbox" [(ngModel)]="faqForm.isActive" name="isActive" /> Active</label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-ghost" (click)="showForm.set(false)">Cancel</button>
+      </div>
+    </form>
+  }
+
+  <div class="table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>Question</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        @for (f of faqs(); track f.id) {
+          <tr>
+            <td>{{ f.question }}</td>
+            <td><span class="badge-pill" [class.on]="f.isActive" [class.off]="!f.isActive">{{ f.isActive ? 'Active' : 'Inactive' }}</span></td>
+            <td class="actions">
+              <button type="button" class="link-btn" (click)="startEditFaq(f)">Edit</button>
+              <button type="button" class="link-btn danger" (click)="removeFaq(f.id)">Delete</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+@if (tab() === 'social') {
+  <div class="page-head">
+    <h2 style="font-size: 1.1rem;">Social Feed</h2>
+    <button type="button" class="btn btn-primary" (click)="startCreateSocial()">+ New Post</button>
+  </div>
+
+  @if (showForm()) {
+    <form class="card-surface admin-form" style="margin-bottom: var(--space-6)" (submit)="$event.preventDefault(); saveSocial()">
+      <div class="field field-full">
+        <label>Image</label>
+        @if (socialForm.imageUrl) {
+          <img [src]="socialForm.imageUrl" alt="" style="max-width: 160px; border-radius: 8px; margin-bottom: 8px; display: block;" />
+        }
+        <input type="file" accept="image/*" (change)="onImageSelected($event, 'social')" [disabled]="uploading()" />
+        @if (uploading()) { <small>Uploading…</small> }
+      </div>
+      <div class="field field-full">
+        <label>Caption</label>
+        <input type="text" [(ngModel)]="socialForm.caption" name="caption" />
+      </div>
+      <div class="field field-full">
+        <label>Link URL (optional)</label>
+        <input type="text" [(ngModel)]="socialForm.linkUrl" name="linkUrl" />
+      </div>
+      <div class="field checkbox-row">
+        <label><input type="checkbox" [(ngModel)]="socialForm.isActive" name="isActive" /> Active</label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-ghost" (click)="showForm.set(false)">Cancel</button>
+      </div>
+    </form>
+  }
+
+  <div class="table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>Preview</th><th>Caption</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        @for (s of socialPosts(); track s.id) {
+          <tr>
+            <td><img [src]="s.imageUrl" alt="" style="width: 56px; height: 56px; object-fit: cover; border-radius: 4px;" /></td>
+            <td>{{ s.caption ?? '—' }}</td>
+            <td><span class="badge-pill" [class.on]="s.isActive" [class.off]="!s.isActive">{{ s.isActive ? 'Active' : 'Inactive' }}</span></td>
+            <td class="actions">
+              <button type="button" class="link-btn" (click)="startEditSocial(s)">Edit</button>
+              <button type="button" class="link-btn danger" (click)="removeSocial(s.id)">Delete</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+@if (tab() === 'blog') {
+  <div class="page-head">
+    <h2 style="font-size: 1.1rem;">Blog</h2>
+    <button type="button" class="btn btn-primary" (click)="startCreateBlog()">+ New Post</button>
+  </div>
+
+  @if (showForm()) {
+    <form class="card-surface admin-form" style="margin-bottom: var(--space-6)" (submit)="$event.preventDefault(); saveBlog()">
+      <div class="field">
+        <label>Title</label>
+        <input type="text" [(ngModel)]="blogForm.title" name="title" (blur)="slugify()" required />
+      </div>
+      <div class="field">
+        <label>Slug</label>
+        <input type="text" [(ngModel)]="blogForm.slug" name="slug" required />
+      </div>
+      <div class="field field-full">
+        <label>Excerpt</label>
+        <input type="text" [(ngModel)]="blogForm.excerpt" name="excerpt" required />
+      </div>
+      <div class="field field-full">
+        <label>Content</label>
+        <textarea rows="6" [(ngModel)]="blogForm.content" name="content" required></textarea>
+      </div>
+      <div class="field field-full">
+        <label>Cover Image</label>
+        @if (blogForm.coverImageUrl) {
+          <img [src]="blogForm.coverImageUrl" alt="" style="max-width: 240px; border-radius: 8px; margin-bottom: 8px; display: block;" />
+        }
+        <input type="file" accept="image/*" (change)="onImageSelected($event, 'blog')" [disabled]="uploading()" />
+        @if (uploading()) { <small>Uploading…</small> }
+      </div>
+      <div class="field">
+        <label>Author</label>
+        <input type="text" [(ngModel)]="blogForm.authorName" name="authorName" />
+      </div>
+      <div class="field checkbox-row">
+        <label><input type="checkbox" [(ngModel)]="blogForm.isPublished" name="isPublished" /> Published</label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-ghost" (click)="showForm.set(false)">Cancel</button>
+      </div>
+    </form>
+  }
+
+  <div class="table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>Title</th><th>Slug</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        @for (b of blogPosts(); track b.id) {
+          <tr>
+            <td>{{ b.title }}</td>
+            <td>{{ b.slug }}</td>
+            <td><span class="badge-pill" [class.on]="b.isPublished" [class.off]="!b.isPublished">{{ b.isPublished ? 'Published' : 'Draft' }}</span></td>
+            <td class="actions">
+              <button type="button" class="link-btn" (click)="startEditBlog(b)">Edit</button>
+              <button type="button" class="link-btn danger" (click)="removeBlog(b.id)">Delete</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+@if (tab() === 'newsletter') {
+  <div class="page-head">
+    <h2 style="font-size: 1.1rem;">Newsletter Subscribers ({{ subscribers().length }})</h2>
+    <button type="button" class="btn btn-ghost" (click)="exportSubscribers()">Export CSV</button>
+  </div>
+
+  <div class="table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>Email</th><th>Subscribed</th></tr></thead>
+      <tbody>
+        @for (s of subscribers(); track s.id) {
+          <tr>
+            <td>{{ s.email }}</td>
+            <td>{{ s.createdAt | date: 'medium' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
