@@ -1,4 +1,9 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  NestInterceptor,
+} from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 import { PaginatedResult } from '../dto/pagination.dto';
 
@@ -20,15 +25,25 @@ function isPaginatedResult(value: unknown): value is PaginatedResult<unknown> {
 }
 
 @Injectable()
-export class TransformResponseInterceptor<T> implements NestInterceptor<T, ApiResponse<T>> {
-  intercept(context: ExecutionContext, next: CallHandler<T>): Observable<ApiResponse<T>> {
+export class TransformResponseInterceptor<T> implements NestInterceptor<
+  T,
+  ApiResponse<T>
+> {
+  intercept(
+    context: ExecutionContext,
+    next: CallHandler<T>,
+  ): Observable<ApiResponse<T>> {
     return next.handle().pipe(
       map((result) => {
         if (isPaginatedResult(result)) {
           return {
             success: true as const,
             data: result.items as T,
-            meta: { page: result.page, limit: result.limit, total: result.total },
+            meta: {
+              page: result.page,
+              limit: result.limit,
+              total: result.total,
+            },
           };
         }
         return { success: true as const, data: result };

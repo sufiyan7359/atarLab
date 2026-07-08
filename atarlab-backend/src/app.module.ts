@@ -43,7 +43,11 @@ import { ContentModule } from './modules/content/content.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, load: [configuration], validationSchema }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+      validationSchema,
+    }),
     // Global default for everything not explicitly overridden (auth endpoints get tighter
     // per-route limits — see AuthController). 100/min turned out too tight for legitimate
     // catalog browsing once instant-search-suggestions started firing per debounced

@@ -11,15 +11,24 @@ export interface CategoryNode extends Category {
 
 @Injectable()
 export class CategoriesService {
-  constructor(@InjectRepository(Category) private readonly repo: Repository<Category>) {}
+  constructor(
+    @InjectRepository(Category) private readonly repo: Repository<Category>,
+  ) {}
 
   async findAllFlat(): Promise<Category[]> {
-    return this.repo.find({ where: { isActive: true }, order: { sortOrder: 'ASC', name: 'ASC' } });
+    return this.repo.find({
+      where: { isActive: true },
+      order: { sortOrder: 'ASC', name: 'ASC' },
+    });
   }
 
   async findTree(): Promise<CategoryNode[]> {
-    const all = await this.repo.find({ order: { sortOrder: 'ASC', name: 'ASC' } });
-    const byId = new Map<string, CategoryNode>(all.map((c) => [c.id, { ...c, children: [] } as CategoryNode]));
+    const all = await this.repo.find({
+      order: { sortOrder: 'ASC', name: 'ASC' },
+    });
+    const byId = new Map<string, CategoryNode>(
+      all.map((c) => [c.id, { ...c, children: [] }]),
+    );
     const roots: CategoryNode[] = [];
     for (const category of byId.values()) {
       if (category.parentId && byId.has(category.parentId)) {
@@ -44,7 +53,10 @@ export class CategoriesService {
   }
 
   create(dto: CreateCategoryDto): Promise<Category> {
-    const category = this.repo.create({ ...dto, parentId: dto.parentId ?? null });
+    const category = this.repo.create({
+      ...dto,
+      parentId: dto.parentId ?? null,
+    });
     return this.repo.save(category);
   }
 

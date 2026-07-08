@@ -16,7 +16,11 @@ export class Notification extends BaseEntity {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ type: 'varchar', length: 30, default: NotificationType.ORDER_STATUS })
+  @Column({
+    type: 'varchar',
+    length: 30,
+    default: NotificationType.ORDER_STATUS,
+  })
   type: NotificationType;
 
   @Column({ type: 'varchar', length: 150 })

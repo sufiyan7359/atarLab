@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Address } from './entities/address.entity';
@@ -7,10 +11,15 @@ import { UpdateAddressDto } from './dto/update-address.dto';
 
 @Injectable()
 export class AddressesService {
-  constructor(@InjectRepository(Address) private readonly repo: Repository<Address>) {}
+  constructor(
+    @InjectRepository(Address) private readonly repo: Repository<Address>,
+  ) {}
 
   findAllForUser(userId: string): Promise<Address[]> {
-    return this.repo.find({ where: { userId }, order: { isDefault: 'DESC', createdAt: 'DESC' } });
+    return this.repo.find({
+      where: { userId },
+      order: { isDefault: 'DESC', createdAt: 'DESC' },
+    });
   }
 
   async findOneOwned(id: string, userId: string): Promise<Address> {
@@ -33,7 +42,11 @@ export class AddressesService {
     return this.repo.save(address);
   }
 
-  async update(id: string, userId: string, dto: UpdateAddressDto): Promise<Address> {
+  async update(
+    id: string,
+    userId: string,
+    dto: UpdateAddressDto,
+  ): Promise<Address> {
     const address = await this.findOneOwned(id, userId);
     if (dto.isDefault) {
       await this.repo.update({ userId }, { isDefault: false });

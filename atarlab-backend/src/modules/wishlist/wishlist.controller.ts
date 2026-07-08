@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { WishlistService } from './wishlist.service';
 import { AddWishlistItemDto } from './dto/add-wishlist-item.dto';
@@ -22,12 +30,18 @@ export class WishlistController {
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: RequestUser) {
+  remove(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: RequestUser,
+  ) {
     return this.wishlistService.remove(id, user.id);
   }
 
   @Post(':id/move-to-cart')
-  moveToCart(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: RequestUser) {
+  moveToCart(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: RequestUser,
+  ) {
     return this.wishlistService.moveToCart(id, user.id);
   }
 }

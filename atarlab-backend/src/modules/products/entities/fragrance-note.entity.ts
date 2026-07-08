@@ -9,7 +9,9 @@ export class FragranceNote extends BaseEntity {
   @Column({ name: 'product_id', type: 'uuid' })
   productId: string;
 
-  @ManyToOne(() => Product, (product) => product.fragranceNotes, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Product, (product) => product.fragranceNotes, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'product_id' })
   product: Product;
 

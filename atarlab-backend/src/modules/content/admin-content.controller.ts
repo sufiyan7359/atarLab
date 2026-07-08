@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Res,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { ContentService } from './content.service';
@@ -31,7 +41,10 @@ export class AdminContentController {
     return this.contentService.createTestimonial(dto);
   }
   @Patch('testimonials/:id')
-  updateTestimonial(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpsertTestimonialDto) {
+  updateTestimonial(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpsertTestimonialDto,
+  ) {
     return this.contentService.updateTestimonial(id, dto);
   }
   @Delete('testimonials/:id')
@@ -67,7 +80,10 @@ export class AdminContentController {
     return this.contentService.createSocialPost(dto);
   }
   @Patch('social-posts/:id')
-  updateSocialPost(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpsertSocialPostDto) {
+  updateSocialPost(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpsertSocialPostDto,
+  ) {
     return this.contentService.updateSocialPost(id, dto);
   }
   @Delete('social-posts/:id')
@@ -89,7 +105,10 @@ export class AdminContentController {
     return this.contentService.createBlogPost(dto);
   }
   @Patch('blog-posts/:id')
-  updateBlogPost(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpsertBlogPostDto) {
+  updateBlogPost(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpsertBlogPostDto,
+  ) {
     return this.contentService.updateBlogPost(id, dto);
   }
   @Delete('blog-posts/:id')
@@ -105,9 +124,14 @@ export class AdminContentController {
   @Get('newsletter-subscribers/export')
   async exportSubscribers(@Res() res: Response) {
     const subscribers = await this.newsletterService.findAll();
-    const csv = toCsv(subscribers.map((s) => ({ email: s.email, subscribedAt: s.createdAt })));
+    const csv = toCsv(
+      subscribers.map((s) => ({ email: s.email, subscribedAt: s.createdAt })),
+    );
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename="newsletter-subscribers.csv"');
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="newsletter-subscribers.csv"',
+    );
     res.send(csv);
   }
 }

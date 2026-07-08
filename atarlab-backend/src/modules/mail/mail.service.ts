@@ -24,16 +24,22 @@ export class MailService implements OnModuleInit {
       this.transporter = nodemailer.createTransport({
         host: app.mail.host,
         port: app.mail.port,
-        auth: app.mail.user ? { user: app.mail.user, pass: app.mail.password } : undefined,
+        auth: app.mail.user
+          ? { user: app.mail.user, pass: app.mail.password }
+          : undefined,
       });
     } else {
-      this.logger.warn('MAIL_HOST not configured — emails will be logged to console instead of sent.');
+      this.logger.warn(
+        'MAIL_HOST not configured — emails will be logged to console instead of sent.',
+      );
     }
   }
 
   async send(params: SendMailParams): Promise<void> {
     if (!this.transporter) {
-      this.logger.log(`[DEV MAIL] To: ${params.to} | Subject: ${params.subject}\n${params.html}`);
+      this.logger.log(
+        `[DEV MAIL] To: ${params.to} | Subject: ${params.subject}\n${params.html}`,
+      );
       return;
     }
     try {
@@ -46,7 +52,9 @@ export class MailService implements OnModuleInit {
     } catch (error) {
       // Email is a best-effort side effect — a provider outage must never fail the calling
       // business operation (registration, checkout, password reset, etc).
-      this.logger.error(`Failed to send email to ${params.to}: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to send email to ${params.to}: ${(error as Error).message}`,
+      );
     }
   }
 

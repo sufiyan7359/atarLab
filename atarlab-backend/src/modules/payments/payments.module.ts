@@ -7,7 +7,10 @@ import { RazorpayProvider } from './providers/razorpay.provider';
 import { OrdersModule } from '../orders/orders.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Payment]), forwardRef(() => OrdersModule)],
+  imports: [
+    TypeOrmModule.forFeature([Payment]),
+    forwardRef(() => OrdersModule),
+  ],
   controllers: [PaymentsController],
   providers: [PaymentsService, RazorpayProvider],
   exports: [PaymentsService, RazorpayProvider],

@@ -18,7 +18,10 @@ export class ReviewsController {
 
   @Public()
   @Get()
-  async findAll(@Param('slug') slug: string, @Query() pagination: PaginationDto) {
+  async findAll(
+    @Param('slug') slug: string,
+    @Query() pagination: PaginationDto,
+  ) {
     const product = await this.productsService.findBySlug(slug);
     return this.reviewsService.findApprovedForProduct(product.id, pagination);
   }

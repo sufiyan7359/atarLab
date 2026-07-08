@@ -10,7 +10,8 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 export class RolesPermissionsService {
   constructor(
     @InjectRepository(Role) private readonly roleRepo: Repository<Role>,
-    @InjectRepository(Permission) private readonly permissionRepo: Repository<Permission>,
+    @InjectRepository(Permission)
+    private readonly permissionRepo: Repository<Permission>,
   ) {}
 
   async getPermissionsForRoles(roleNames: string[]): Promise<Set<string>> {
@@ -29,7 +30,10 @@ export class RolesPermissionsService {
   }
 
   findAllRoles(): Promise<Role[]> {
-    return this.roleRepo.find({ relations: { permissions: true }, order: { name: 'ASC' } });
+    return this.roleRepo.find({
+      relations: { permissions: true },
+      order: { name: 'ASC' },
+    });
   }
 
   findAllPermissions(): Promise<Permission[]> {
@@ -37,7 +41,10 @@ export class RolesPermissionsService {
   }
 
   async findRoleById(id: string): Promise<Role> {
-    const role = await this.roleRepo.findOne({ where: { id }, relations: { permissions: true } });
+    const role = await this.roleRepo.findOne({
+      where: { id },
+      relations: { permissions: true },
+    });
     if (!role) throw new NotFoundException('Role not found');
     return role;
   }
@@ -46,7 +53,11 @@ export class RolesPermissionsService {
     const permissions = dto.permissionIds?.length
       ? await this.permissionRepo.find({ where: { id: In(dto.permissionIds) } })
       : [];
-    const role = this.roleRepo.create({ name: dto.name as never, description: dto.description ?? null, permissions });
+    const role = this.roleRepo.create({
+      name: dto.name as never,
+      description: dto.description ?? null,
+      permissions,
+    });
     return this.roleRepo.save(role);
   }
 
@@ -56,7 +67,9 @@ export class RolesPermissionsService {
     if (dto.description !== undefined) role.description = dto.description;
     if (dto.permissionIds !== undefined) {
       role.permissions = dto.permissionIds.length
-        ? await this.permissionRepo.find({ where: { id: In(dto.permissionIds) } })
+        ? await this.permissionRepo.find({
+            where: { id: In(dto.permissionIds) },
+          })
         : [];
     }
     return this.roleRepo.save(role);

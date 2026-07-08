@@ -1,4 +1,9 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
@@ -26,7 +31,10 @@ import {
   PaymentTxnStatus,
 } from '../../common/enums';
 import { generateOrderNumber } from '../../common/utils/order-number.util';
-import { PaginatedResult, PaginationDto } from '../../common/dto/pagination.dto';
+import {
+  PaginatedResult,
+  PaginationDto,
+} from '../../common/dto/pagination.dto';
 import { AppConfig } from '../../config/configuration';
 import { TrackingGateway } from '../tracking/tracking.gateway';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -47,7 +55,12 @@ const STATUS_MESSAGES: Partial<Record<OrderStatus, string>> = {
 
 export interface CheckoutResult {
   order: Order;
-  razorpay?: { orderId: string; amount: number; currency: string; keyId: string };
+  razorpay?: {
+    orderId: string;
+    amount: number;
+    currency: string;
+    keyId: string;
+  };
 }
 
 @Injectable()
@@ -55,8 +68,10 @@ export class OrdersService {
   constructor(
     @InjectDataSource() private readonly dataSource: DataSource,
     @InjectRepository(Order) private readonly orderRepo: Repository<Order>,
-    @InjectRepository(OrderStatusHistory) private readonly historyRepo: Repository<OrderStatusHistory>,
-    @InjectRepository(Invoice) private readonly invoiceRepo: Repository<Invoice>,
+    @InjectRepository(OrderStatusHistory)
+    private readonly historyRepo: Repository<OrderStatusHistory>,
+    @InjectRepository(Invoice)
+    private readonly invoiceRepo: Repository<Invoice>,
     private readonly cartService: CartService,
     private readonly couponsService: CouponsService,
     private readonly paymentsService: PaymentsService,
@@ -90,9 +105,14 @@ export class OrdersService {
           .setLock('pessimistic_write')
           .where('variant.id = :id', { id: cartItem.variantId })
           .getOne();
-        if (!variant) throw new NotFoundException('A product in your cart is no longer available');
+        if (!variant)
+          throw new NotFoundException(
+            'A product in your cart is no longer available',
+          );
         if (variant.stockQuantity < cartItem.quantity) {
-          throw new BadRequestException(`Insufficient stock for one of the items in your cart`);
+          throw new BadRequestException(
+            `Insufficient stock for one of the items in your cart`,
+          );
         }
 
         variant.stockQuantity -= cartItem.quantity;
@@ -110,12 +130,21 @@ export class OrdersService {
         );
       }
 
-      const provider = dto.paymentMethod === PaymentMethod.COD ? PaymentProvider.COD : PaymentProvider.RAZORPAY;
-      const initialStatus = provider === PaymentProvider.COD ? OrderStatus.CONFIRMED : OrderStatus.PENDING;
+      const provider =
+        dto.paymentMethod === PaymentMethod.COD
+          ? PaymentProvider.COD
+          : PaymentProvider.RAZORPAY;
+      const initialStatus =
+        provider === PaymentProvider.COD
+          ? OrderStatus.CONFIRMED
+          : OrderStatus.PENDING;
 
       let couponId: string | null = null;
       if (cart.couponCode) {
-        const coupon = await this.couponsService.validateForSubtotal(cart.couponCode, summary.subtotal);
+        const coupon = await this.couponsService.validateForSubtotal(
+          cart.couponCode,
+          summary.subtotal,
+        );
         couponId = coupon.id;
       }
 
@@ -157,12 +186,17 @@ export class OrdersService {
         manager.getRepository(OrderStatusHistory).create({
           orderId: order.id,
           status: initialStatus,
-          note: provider === PaymentProvider.COD ? 'Order confirmed (Cash on Delivery)' : 'Order placed, awaiting payment',
+          note:
+            provider === PaymentProvider.COD
+              ? 'Order confirmed (Cash on Delivery)'
+              : 'Order placed, awaiting payment',
         }),
       );
 
       if (couponId) {
-        await redemptionRepo.save(redemptionRepo.create({ couponId, userId, orderId: order.id }));
+        await redemptionRepo.save(
+          redemptionRepo.create({ couponId, userId, orderId: order.id }),
+        );
         await this.couponsService.incrementUsage(couponId);
       }
 
@@ -175,12 +209,20 @@ export class OrdersService {
 
       const paymentRepo = manager.getRepository(Payment);
       const payment = await paymentRepo.save(
-        paymentRepo.create({ orderId: order.id, provider, amount: summary.grandTotal }),
+        paymentRepo.create({
+          orderId: order.id,
+          provider,
+          amount: summary.grandTotal,
+        }),
       );
 
       let razorpayInfo: CheckoutResult['razorpay'];
       if (provider === PaymentProvider.RAZORPAY) {
-        const rpOrder = await this.razorpayProvider.createOrder(summary.grandTotal, 'INR', order.orderNumber);
+        const rpOrder = await this.razorpayProvider.createOrder(
+          summary.grandTotal,
+          'INR',
+          order.orderNumber,
+        );
         payment.providerOrderId = rpOrder.id;
         await paymentRepo.save(payment);
         const app = this.configService.get<AppConfig>('app')!;
@@ -199,7 +241,10 @@ export class OrdersService {
     });
   }
 
-  async findAllForUser(userId: string, pagination: PaginationDto): Promise<PaginatedResult<Order>> {
+  async findAllForUser(
+    userId: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<Order>> {
     const [items, total] = await this.orderRepo.findAndCount({
       where: { userId },
       relations: { items: true },
@@ -223,13 +268,20 @@ export class OrdersService {
   async findByIdAdmin(id: string): Promise<Order> {
     const order = await this.orderRepo.findOne({
       where: { id },
-      relations: { items: true, shippingAddress: true, billingAddress: true, user: true },
+      relations: {
+        items: true,
+        shippingAddress: true,
+        billingAddress: true,
+        user: true,
+      },
     });
     if (!order) throw new NotFoundException('Order not found');
     return order;
   }
 
-  async findAllAdmin(pagination: PaginationDto): Promise<PaginatedResult<Order>> {
+  async findAllAdmin(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<Order>> {
     const [items, total] = await this.orderRepo.findAndCount({
       relations: { items: true, user: true },
       order: { placedAt: 'DESC' },
@@ -244,82 +296,126 @@ export class OrdersService {
     return this.cancelInternal(order, 'Cancelled by customer', userId);
   }
 
-  async adminCancel(id: string, actorUserId: string, note?: string): Promise<Order> {
+  async adminCancel(
+    id: string,
+    actorUserId: string,
+    note?: string,
+  ): Promise<Order> {
     const order = await this.findByIdAdmin(id);
-    return this.cancelInternal(order, note ?? 'Cancelled by admin', actorUserId);
+    return this.cancelInternal(
+      order,
+      note ?? 'Cancelled by admin',
+      actorUserId,
+    );
   }
 
-  private async cancelInternal(order: Order, note: string, actorUserId: string): Promise<Order> {
+  private async cancelInternal(
+    order: Order,
+    note: string,
+    actorUserId: string,
+  ): Promise<Order> {
     if (![OrderStatus.PENDING, OrderStatus.CONFIRMED].includes(order.status)) {
       throw new BadRequestException('This order can no longer be cancelled');
     }
 
-    return this.dataSource.transaction(async (manager) => {
-      const variantRepo = manager.getRepository(ProductVariant);
-      const movementRepo = manager.getRepository(InventoryMovement);
-      const orderItemRepo = manager.getRepository(OrderItem);
-      const orderRepo = manager.getRepository(Order);
+    return this.dataSource
+      .transaction(async (manager) => {
+        const variantRepo = manager.getRepository(ProductVariant);
+        const movementRepo = manager.getRepository(InventoryMovement);
+        const orderItemRepo = manager.getRepository(OrderItem);
+        const orderRepo = manager.getRepository(Order);
 
-      const items = await orderItemRepo.find({ where: { orderId: order.id } });
-      for (const item of items) {
-        await variantRepo.increment({ id: item.variantId }, 'stockQuantity', item.quantity);
-        await movementRepo.save(
-          movementRepo.create({
-            variantId: item.variantId,
-            changeQty: item.quantity,
-            reason: InventoryReason.RETURN,
-            referenceType: 'order_cancelled',
-            referenceId: order.id,
+        const items = await orderItemRepo.find({
+          where: { orderId: order.id },
+        });
+        for (const item of items) {
+          await variantRepo.increment(
+            { id: item.variantId },
+            'stockQuantity',
+            item.quantity,
+          );
+          await movementRepo.save(
+            movementRepo.create({
+              variantId: item.variantId,
+              changeQty: item.quantity,
+              reason: InventoryReason.RETURN,
+              referenceType: 'order_cancelled',
+              referenceId: order.id,
+            }),
+          );
+        }
+
+        if (order.paymentStatus === PaymentStatus.PAID) {
+          const payment = await this.paymentsService.findByOrderId(order.id);
+          if (payment?.providerPaymentId) {
+            await this.razorpayProvider.refundPayment(
+              payment.providerPaymentId,
+              Number(order.grandTotal),
+            );
+            await this.paymentsService.markStatus(
+              payment.id,
+              PaymentTxnStatus.REFUNDED,
+            );
+          }
+          order.paymentStatus = PaymentStatus.REFUNDED;
+        }
+
+        order.status = OrderStatus.CANCELLED;
+        order.cancelledAt = new Date();
+        await orderRepo.save(order);
+
+        await manager.getRepository(OrderStatusHistory).save(
+          manager.getRepository(OrderStatusHistory).create({
+            orderId: order.id,
+            status: OrderStatus.CANCELLED,
+            note,
+            changedByUserId: actorUserId,
           }),
         );
-      }
 
-      if (order.paymentStatus === PaymentStatus.PAID) {
-        const payment = await this.paymentsService.findByOrderId(order.id);
-        if (payment?.providerPaymentId) {
-          await this.razorpayProvider.refundPayment(payment.providerPaymentId, Number(order.grandTotal));
-          await this.paymentsService.markStatus(payment.id, PaymentTxnStatus.REFUNDED);
-        }
-        order.paymentStatus = PaymentStatus.REFUNDED;
-      }
-
-      order.status = OrderStatus.CANCELLED;
-      order.cancelledAt = new Date();
-      await orderRepo.save(order);
-
-      await manager.getRepository(OrderStatusHistory).save(
-        manager.getRepository(OrderStatusHistory).create({
-          orderId: order.id,
-          status: OrderStatus.CANCELLED,
+        return order;
+      })
+      .then(async (order) => {
+        this.trackingGateway.emitOrderUpdate(order.id, {
+          status: order.status,
           note,
-          changedByUserId: actorUserId,
-        }),
-      );
-
-      return order;
-    }).then(async (order) => {
-      this.trackingGateway.emitOrderUpdate(order.id, { status: order.status, note, updatedAt: new Date() });
-      this.deliverySimulatorService.stop(order.id);
-      await this.notificationsService.create(
-        order.userId,
-        NotificationType.ORDER_STATUS,
-        `Order ${order.orderNumber}`,
-        STATUS_MESSAGES[OrderStatus.CANCELLED]!,
-        order.id,
-      );
-      return order;
-    });
+          updatedAt: new Date(),
+        });
+        this.deliverySimulatorService.stop(order.id);
+        await this.notificationsService.create(
+          order.userId,
+          NotificationType.ORDER_STATUS,
+          `Order ${order.orderNumber}`,
+          STATUS_MESSAGES[OrderStatus.CANCELLED]!,
+          order.id,
+        );
+        return order;
+      });
   }
 
-  async updateStatus(id: string, status: OrderStatus, note: string | undefined, actorUserId: string): Promise<Order> {
+  async updateStatus(
+    id: string,
+    status: OrderStatus,
+    note: string | undefined,
+    actorUserId: string,
+  ): Promise<Order> {
     const order = await this.findByIdAdmin(id);
     order.status = status;
     await this.orderRepo.save(order);
     await this.historyRepo.save(
-      this.historyRepo.create({ orderId: order.id, status, note: note ?? null, changedByUserId: actorUserId }),
+      this.historyRepo.create({
+        orderId: order.id,
+        status,
+        note: note ?? null,
+        changedByUserId: actorUserId,
+      }),
     );
 
-    this.trackingGateway.emitOrderUpdate(order.id, { status, note: note ?? null, updatedAt: new Date() });
+    this.trackingGateway.emitOrderUpdate(order.id, {
+      status,
+      note: note ?? null,
+      updatedAt: new Date(),
+    });
     await this.notificationsService.create(
       order.userId,
       NotificationType.ORDER_STATUS,
@@ -348,10 +444,18 @@ export class OrdersService {
     }
     await this.orderRepo.save(order);
     await this.historyRepo.save(
-      this.historyRepo.create({ orderId: order.id, status: order.status, note }),
+      this.historyRepo.create({
+        orderId: order.id,
+        status: order.status,
+        note,
+      }),
     );
 
-    this.trackingGateway.emitOrderUpdate(order.id, { status: order.status, note, updatedAt: new Date() });
+    this.trackingGateway.emitOrderUpdate(order.id, {
+      status: order.status,
+      note,
+      updatedAt: new Date(),
+    });
     if (wasPending) {
       await this.notificationsService.create(
         order.userId,
@@ -365,7 +469,10 @@ export class OrdersService {
   }
 
   getStatusHistory(orderId: string): Promise<OrderStatusHistory[]> {
-    return this.historyRepo.find({ where: { orderId }, order: { createdAt: 'ASC' } });
+    return this.historyRepo.find({
+      where: { orderId },
+      order: { createdAt: 'ASC' },
+    });
   }
 
   async getInvoice(orderId: string): Promise<Invoice> {

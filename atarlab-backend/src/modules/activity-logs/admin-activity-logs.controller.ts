@@ -18,6 +18,9 @@ export class AdminActivityLogsController {
     @Query('entityType') entityType?: string,
     @Query('actorUserId') actorUserId?: string,
   ) {
-    return this.activityLogsService.findAll(pagination, { entityType, actorUserId });
+    return this.activityLogsService.findAll(pagination, {
+      entityType,
+      actorUserId,
+    });
   }
 }

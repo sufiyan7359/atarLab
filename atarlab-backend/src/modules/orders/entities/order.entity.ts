@@ -1,9 +1,21 @@
-import { Column, DeleteDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Column,
+  DeleteDateColumn,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { User } from '../../users/entities/user.entity';
 import { Address } from '../../addresses/entities/address.entity';
 import { Coupon } from '../../coupons/entities/coupon.entity';
-import { OrderStatus, PaymentStatus, PaymentMethod } from '../../../common/enums';
+import {
+  OrderStatus,
+  PaymentStatus,
+  PaymentMethod,
+} from '../../../common/enums';
 import { OrderItem } from './order-item.entity';
 
 @Entity('orders')
@@ -22,7 +34,12 @@ export class Order extends BaseEntity {
   @Column({ type: 'varchar', length: 30, default: OrderStatus.PENDING })
   status: OrderStatus;
 
-  @Column({ name: 'payment_status', type: 'varchar', length: 20, default: PaymentStatus.PENDING })
+  @Column({
+    name: 'payment_status',
+    type: 'varchar',
+    length: 20,
+    default: PaymentStatus.PENDING,
+  })
   paymentStatus: PaymentStatus;
 
   @Column({ name: 'payment_method', type: 'varchar', length: 20 })
@@ -52,13 +69,31 @@ export class Order extends BaseEntity {
   @Column({ type: 'numeric', precision: 10, scale: 2 })
   subtotal: number;
 
-  @Column({ name: 'discount_total', type: 'numeric', precision: 10, scale: 2, default: 0 })
+  @Column({
+    name: 'discount_total',
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    default: 0,
+  })
   discountTotal: number;
 
-  @Column({ name: 'shipping_fee', type: 'numeric', precision: 10, scale: 2, default: 0 })
+  @Column({
+    name: 'shipping_fee',
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    default: 0,
+  })
   shippingFee: number;
 
-  @Column({ name: 'tax_total', type: 'numeric', precision: 10, scale: 2, default: 0 })
+  @Column({
+    name: 'tax_total',
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    default: 0,
+  })
   taxTotal: number;
 
   @Column({ name: 'grand_total', type: 'numeric', precision: 10, scale: 2 })

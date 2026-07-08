@@ -24,7 +24,13 @@ export interface AppConfig {
     refreshExpiresIn: Duration;
   };
   google: { clientId: string; clientSecret: string; callbackUrl: string };
-  mail: { host: string; port: number; user: string; password: string; from: string };
+  mail: {
+    host: string;
+    port: number;
+    user: string;
+    password: string;
+    from: string;
+  };
   razorpay: { keyId: string; keySecret: string; webhookSecret: string };
   cloudinary: { cloudName: string; apiKey: string; apiSecret: string };
 }
@@ -36,7 +42,9 @@ export default (): { app: AppConfig } => ({
     apiPrefix: process.env.API_PREFIX ?? 'api/v1',
     corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:4200',
     frontendUrl: process.env.FRONTEND_URL ?? 'http://localhost:4200',
-    publicUrl: process.env.BACKEND_PUBLIC_URL ?? `http://localhost:${process.env.PORT ?? '3000'}`,
+    publicUrl:
+      process.env.BACKEND_PUBLIC_URL ??
+      `http://localhost:${process.env.PORT ?? '3000'}`,
     database: {
       host: process.env.DB_HOST ?? 'localhost',
       port: parseInt(process.env.DB_PORT ?? '5432', 10),
@@ -57,7 +65,8 @@ export default (): { app: AppConfig } => ({
       accessSecret: process.env.JWT_ACCESS_SECRET ?? '',
       accessExpiresIn: (process.env.JWT_ACCESS_EXPIRES_IN ?? '15m') as Duration,
       refreshSecret: process.env.JWT_REFRESH_SECRET ?? '',
-      refreshExpiresIn: (process.env.JWT_REFRESH_EXPIRES_IN ?? '7d') as Duration,
+      refreshExpiresIn: (process.env.JWT_REFRESH_EXPIRES_IN ??
+        '7d') as Duration,
     },
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID ?? '',

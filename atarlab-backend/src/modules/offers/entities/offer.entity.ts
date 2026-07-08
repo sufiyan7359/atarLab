@@ -13,7 +13,12 @@ export class Offer extends BaseEntity {
   @Column({ type: 'varchar', length: 500, nullable: true })
   description: string | null;
 
-  @Column({ name: 'banner_image', type: 'varchar', length: 500, nullable: true })
+  @Column({
+    name: 'banner_image',
+    type: 'varchar',
+    length: 500,
+    nullable: true,
+  })
   bannerImage: string | null;
 
   @Column({ name: 'discount_type', type: 'varchar', length: 10 })

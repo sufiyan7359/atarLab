@@ -13,10 +13,22 @@ export class Coupon extends BaseEntity {
   @Column({ type: 'numeric', precision: 10, scale: 2 })
   value: number;
 
-  @Column({ name: 'min_order_value', type: 'numeric', precision: 10, scale: 2, default: 0 })
+  @Column({
+    name: 'min_order_value',
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    default: 0,
+  })
   minOrderValue: number;
 
-  @Column({ name: 'max_discount', type: 'numeric', precision: 10, scale: 2, nullable: true })
+  @Column({
+    name: 'max_discount',
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+  })
   maxDiscount: number | null;
 
   @Column({ name: 'usage_limit', type: 'int', nullable: true })

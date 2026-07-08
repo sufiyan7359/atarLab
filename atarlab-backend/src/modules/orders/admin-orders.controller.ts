@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
@@ -40,6 +49,10 @@ export class AdminOrdersController {
     @CurrentUser() user: RequestUser,
     @Body('note') note?: string,
   ) {
-    return this.ordersService.adminCancel(id, user.id, note ?? 'Refunded by admin');
+    return this.ordersService.adminCancel(
+      id,
+      user.id,
+      note ?? 'Refunded by admin',
+    );
   }
 }

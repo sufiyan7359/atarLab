@@ -11,7 +11,9 @@ export class BannersController {
   constructor(private readonly bannersService: BannersService) {}
 
   @Get()
-  findByPosition(@Query('position') position: BannerPosition = BannerPosition.HERO) {
+  findByPosition(
+    @Query('position') position: BannerPosition = BannerPosition.HERO,
+  ) {
     return this.bannersService.findActiveByPosition(position);
   }
 }

@@ -7,7 +7,9 @@ const AGENTS: Array<{ name: string; phone: string; vehicleNumber: string }> = [
   { name: 'Vikram Singh', phone: '9876543212', vehicleNumber: 'MH-03-EF-9012' },
 ];
 
-export async function seedDeliveryAgents(dataSource: DataSource): Promise<void> {
+export async function seedDeliveryAgents(
+  dataSource: DataSource,
+): Promise<void> {
   const repo = dataSource.getRepository(DeliveryAgent);
   let created = 0;
   for (const a of AGENTS) {

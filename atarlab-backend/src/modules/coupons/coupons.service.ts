@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Coupon } from './entities/coupon.entity';
@@ -9,20 +13,29 @@ import { round2 } from '../../common/utils/pricing.util';
 
 @Injectable()
 export class CouponsService {
-  constructor(@InjectRepository(Coupon) private readonly repo: Repository<Coupon>) {}
+  constructor(
+    @InjectRepository(Coupon) private readonly repo: Repository<Coupon>,
+  ) {}
 
   async validateForSubtotal(code: string, subtotal: number): Promise<Coupon> {
-    const coupon = await this.repo.findOne({ where: { code: code.toUpperCase() } });
-    if (!coupon || !coupon.isActive) throw new BadRequestException('Invalid coupon code');
+    const coupon = await this.repo.findOne({
+      where: { code: code.toUpperCase() },
+    });
+    if (!coupon || !coupon.isActive)
+      throw new BadRequestException('Invalid coupon code');
 
     const now = new Date();
-    if (coupon.startsAt && coupon.startsAt > now) throw new BadRequestException('Coupon is not active yet');
-    if (coupon.expiresAt && coupon.expiresAt < now) throw new BadRequestException('Coupon has expired');
+    if (coupon.startsAt && coupon.startsAt > now)
+      throw new BadRequestException('Coupon is not active yet');
+    if (coupon.expiresAt && coupon.expiresAt < now)
+      throw new BadRequestException('Coupon has expired');
     if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) {
       throw new BadRequestException('Coupon usage limit reached');
     }
     if (subtotal < Number(coupon.minOrderValue)) {
-      throw new BadRequestException(`Minimum order value for this coupon is ${coupon.minOrderValue}`);
+      throw new BadRequestException(
+        `Minimum order value for this coupon is ${coupon.minOrderValue}`,
+      );
     }
     return coupon;
   }
@@ -30,7 +43,10 @@ export class CouponsService {
   computeDiscount(coupon: Coupon, subtotal: number): number {
     if (coupon.type === CouponType.PERCENTAGE) {
       const raw = (subtotal * Number(coupon.value)) / 100;
-      const capped = coupon.maxDiscount !== null ? Math.min(raw, Number(coupon.maxDiscount)) : raw;
+      const capped =
+        coupon.maxDiscount !== null
+          ? Math.min(raw, Number(coupon.maxDiscount))
+          : raw;
       return round2(capped);
     }
     return round2(Math.min(Number(coupon.value), subtotal));

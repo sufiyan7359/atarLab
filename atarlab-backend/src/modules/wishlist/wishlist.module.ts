@@ -8,7 +8,10 @@ import { WishlistController } from './wishlist.controller';
 import { CartModule } from '../cart/cart.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Wishlist, Product, ProductVariant]), CartModule],
+  imports: [
+    TypeOrmModule.forFeature([Wishlist, Product, ProductVariant]),
+    CartModule,
+  ],
   controllers: [WishlistController],
   providers: [WishlistService],
 })

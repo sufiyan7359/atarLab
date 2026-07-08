@@ -11,7 +11,15 @@ import { ContentController } from './content.controller';
 import { AdminContentController } from './admin-content.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Testimonial, FaqItem, BlogPost, SocialPost, NewsletterSubscriber])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Testimonial,
+      FaqItem,
+      BlogPost,
+      SocialPost,
+      NewsletterSubscriber,
+    ]),
+  ],
   controllers: [ContentController, AdminContentController],
   providers: [ContentService, NewsletterService],
   exports: [ContentService, NewsletterService],

@@ -1,4 +1,9 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cart } from './entities/cart.entity';
@@ -8,7 +13,11 @@ import { AddCartItemDto } from './dto/add-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import { CartIdentity } from './interfaces/cart-identity.interface';
 import { CouponsService } from '../coupons/coupons.service';
-import { computeShippingFee, computeTax, round2 } from '../../common/utils/pricing.util';
+import {
+  computeShippingFee,
+  computeTax,
+  round2,
+} from '../../common/utils/pricing.util';
 
 export interface CartSummary {
   cart: Cart;
@@ -24,7 +33,8 @@ export class CartService {
   constructor(
     @InjectRepository(Cart) private readonly cartRepo: Repository<Cart>,
     @InjectRepository(CartItem) private readonly itemRepo: Repository<CartItem>,
-    @InjectRepository(ProductVariant) private readonly variantRepo: Repository<ProductVariant>,
+    @InjectRepository(ProductVariant)
+    private readonly variantRepo: Repository<ProductVariant>,
     private readonly couponsService: CouponsService,
   ) {}
 
@@ -33,7 +43,10 @@ export class CartService {
     let cart = await this.findCart(identity);
     if (!cart) {
       cart = await this.cartRepo.save(
-        this.cartRepo.create({ userId: identity.userId ?? null, sessionId: identity.sessionId ?? null }),
+        this.cartRepo.create({
+          userId: identity.userId ?? null,
+          sessionId: identity.sessionId ?? null,
+        }),
       );
       cart.items = [];
     }
@@ -41,7 +54,9 @@ export class CartService {
   }
 
   async addItem(identity: CartIdentity, dto: AddCartItemDto): Promise<Cart> {
-    const variant = await this.variantRepo.findOne({ where: { id: dto.variantId, isActive: true } });
+    const variant = await this.variantRepo.findOne({
+      where: { id: dto.variantId, isActive: true },
+    });
     if (!variant) throw new NotFoundException('Product variant not found');
 
     const cart = await this.getOrCreateCart(identity);
@@ -65,7 +80,11 @@ export class CartService {
     return this.getOrCreateCart(identity);
   }
 
-  async updateItem(itemId: string, identity: CartIdentity, dto: UpdateCartItemDto): Promise<Cart> {
+  async updateItem(
+    itemId: string,
+    identity: CartIdentity,
+    dto: UpdateCartItemDto,
+  ): Promise<Cart> {
     const item = await this.getOwnedItem(itemId, identity);
     if (dto.quantity !== undefined) {
       this.assertStock(item.variant, dto.quantity);
@@ -83,15 +102,26 @@ export class CartService {
     return this.getOrCreateCart(identity);
   }
 
-  async mergeGuestCartIntoUser(sessionId: string, userId: string): Promise<Cart> {
-    const guestCart = await this.cartRepo.findOne({ where: { sessionId }, relations: { items: true } });
+  async mergeGuestCartIntoUser(
+    sessionId: string,
+    userId: string,
+  ): Promise<Cart> {
+    const guestCart = await this.cartRepo.findOne({
+      where: { sessionId },
+      relations: { items: true },
+    });
     if (!guestCart) return this.getOrCreateCart({ userId });
 
     const userCart = await this.getOrCreateCart({ userId });
     for (const guestItem of guestCart.items) {
-      const existing = userCart.items?.find((i) => i.variantId === guestItem.variantId);
+      const existing = userCart.items?.find(
+        (i) => i.variantId === guestItem.variantId,
+      );
       if (existing) {
-        existing.quantity = Math.min(existing.quantity + guestItem.quantity, 20);
+        existing.quantity = Math.min(
+          existing.quantity + guestItem.quantity,
+          20,
+        );
         await this.itemRepo.save(existing);
       } else {
         await this.itemRepo.save(
@@ -130,7 +160,10 @@ export class CartService {
     let discount = 0;
     if (cart.couponCode) {
       try {
-        const coupon = await this.couponsService.validateForSubtotal(cart.couponCode, subtotal);
+        const coupon = await this.couponsService.validateForSubtotal(
+          cart.couponCode,
+          subtotal,
+        );
         discount = this.couponsService.computeDiscount(coupon, subtotal);
       } catch {
         cart.couponCode = null;
@@ -147,25 +180,44 @@ export class CartService {
   }
 
   private computeSubtotal(cart: Cart): number {
-    return round2((cart.items ?? []).reduce((sum, item) => sum + Number(item.variant.price) * item.quantity, 0));
+    return round2(
+      (cart.items ?? []).reduce(
+        (sum, item) => sum + Number(item.variant.price) * item.quantity,
+        0,
+      ),
+    );
   }
 
   private assertStock(variant: ProductVariant, quantity: number): void {
     if (quantity > variant.stockQuantity) {
-      throw new BadRequestException(`Only ${variant.stockQuantity} units of this item are in stock`);
+      throw new BadRequestException(
+        `Only ${variant.stockQuantity} units of this item are in stock`,
+      );
     }
   }
 
   private async findCart(identity: CartIdentity): Promise<Cart | null> {
     const relations = { items: { variant: { product: { images: true } } } };
     if (identity.userId) {
-      return this.cartRepo.findOne({ where: { userId: identity.userId }, relations });
+      return this.cartRepo.findOne({
+        where: { userId: identity.userId },
+        relations,
+      });
     }
-    return this.cartRepo.findOne({ where: { sessionId: identity.sessionId }, relations });
+    return this.cartRepo.findOne({
+      where: { sessionId: identity.sessionId },
+      relations,
+    });
   }
 
-  private async getOwnedItem(itemId: string, identity: CartIdentity): Promise<CartItem> {
-    const item = await this.itemRepo.findOne({ where: { id: itemId }, relations: { cart: true, variant: true } });
+  private async getOwnedItem(
+    itemId: string,
+    identity: CartIdentity,
+  ): Promise<CartItem> {
+    const item = await this.itemRepo.findOne({
+      where: { id: itemId },
+      relations: { cart: true, variant: true },
+    });
     if (!item) throw new NotFoundException('Cart item not found');
     const owns =
       (identity.userId && item.cart.userId === identity.userId) ||
@@ -176,7 +228,9 @@ export class CartService {
 
   private assertIdentity(identity: CartIdentity): void {
     if (!identity.userId && !identity.sessionId) {
-      throw new BadRequestException('A session id or authentication is required to use the cart');
+      throw new BadRequestException(
+        'A session id or authentication is required to use the cart',
+      );
     }
   }
 }

@@ -1,4 +1,9 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  NestInterceptor,
+} from '@nestjs/common';
 import type { Request } from 'express';
 import { Observable, tap } from 'rxjs';
 import { ActivityLogsService } from './activity-logs.service';
@@ -26,14 +31,17 @@ export class ActivityLogInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
     const verb = MUTATING_METHODS[request.method];
-    const isAdminRoute = request.originalUrl.includes('/admin/') || request.originalUrl.endsWith('/admin');
+    const isAdminRoute =
+      request.originalUrl.includes('/admin/') ||
+      request.originalUrl.endsWith('/admin');
 
     if (!verb || !isAdminRoute) {
       return next.handle();
     }
 
     const entityType = this.extractEntityType(request.originalUrl);
-    const entityId = (request.params as Record<string, string> | undefined)?.['id'] ?? null;
+    const entityId =
+      (request.params as Record<string, string> | undefined)?.['id'] ?? null;
 
     return next.handle().pipe(
       tap((result) => {

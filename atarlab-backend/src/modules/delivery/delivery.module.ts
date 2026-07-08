@@ -10,9 +10,20 @@ import { TrackingModule } from '../tracking/tracking.module';
 import { DeliverySimulatorService } from './delivery-simulator.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([DeliveryAgent, OrderDelivery]), TrackingModule],
+  imports: [
+    TypeOrmModule.forFeature([DeliveryAgent, OrderDelivery]),
+    TrackingModule,
+  ],
   controllers: [AdminDeliveryAgentsController, AdminOrderDeliveriesController],
-  providers: [DeliveryAgentsService, OrderDeliveriesService, DeliverySimulatorService],
-  exports: [DeliveryAgentsService, OrderDeliveriesService, DeliverySimulatorService],
+  providers: [
+    DeliveryAgentsService,
+    OrderDeliveriesService,
+    DeliverySimulatorService,
+  ],
+  exports: [
+    DeliveryAgentsService,
+    OrderDeliveriesService,
+    DeliverySimulatorService,
+  ],
 })
 export class DeliveryModule {}

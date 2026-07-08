@@ -1,4 +1,12 @@
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { ProductVariant } from './product-variant.entity';
 import { InventoryReason } from '../../../common/enums';
 
@@ -21,7 +29,12 @@ export class InventoryMovement {
   @Column({ type: 'varchar', length: 30 })
   reason: InventoryReason;
 
-  @Column({ name: 'reference_type', type: 'varchar', length: 30, nullable: true })
+  @Column({
+    name: 'reference_type',
+    type: 'varchar',
+    length: 30,
+    nullable: true,
+  })
   referenceType: string | null;
 
   @Column({ name: 'reference_id', type: 'uuid', nullable: true })

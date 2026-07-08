@@ -11,7 +11,9 @@ export class CategoriesController {
 
   @Get()
   findAll(@Query('flat') flat?: string) {
-    return flat === 'true' ? this.categoriesService.findAllFlat() : this.categoriesService.findTree();
+    return flat === 'true'
+      ? this.categoriesService.findAllFlat()
+      : this.categoriesService.findTree();
   }
 
   @Get(':slug')

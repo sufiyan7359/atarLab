@@ -9,20 +9,28 @@ import { UpsertTestimonialDto } from './dto/upsert-testimonial.dto';
 import { UpsertFaqDto } from './dto/upsert-faq.dto';
 import { UpsertBlogPostDto } from './dto/upsert-blog-post.dto';
 import { UpsertSocialPostDto } from './dto/upsert-social-post.dto';
-import { PaginatedResult, PaginationDto } from '../../common/dto/pagination.dto';
+import {
+  PaginatedResult,
+  PaginationDto,
+} from '../../common/dto/pagination.dto';
 
 @Injectable()
 export class ContentService {
   constructor(
-    @InjectRepository(Testimonial) private readonly testimonialRepo: Repository<Testimonial>,
+    @InjectRepository(Testimonial)
+    private readonly testimonialRepo: Repository<Testimonial>,
     @InjectRepository(FaqItem) private readonly faqRepo: Repository<FaqItem>,
     @InjectRepository(BlogPost) private readonly blogRepo: Repository<BlogPost>,
-    @InjectRepository(SocialPost) private readonly socialRepo: Repository<SocialPost>,
+    @InjectRepository(SocialPost)
+    private readonly socialRepo: Repository<SocialPost>,
   ) {}
 
   // Testimonials
   findActiveTestimonials(): Promise<Testimonial[]> {
-    return this.testimonialRepo.find({ where: { isActive: true }, order: { sortOrder: 'ASC' } });
+    return this.testimonialRepo.find({
+      where: { isActive: true },
+      order: { sortOrder: 'ASC' },
+    });
   }
   findAllTestimonials(): Promise<Testimonial[]> {
     return this.testimonialRepo.find({ order: { sortOrder: 'ASC' } });
@@ -30,7 +38,10 @@ export class ContentService {
   createTestimonial(dto: UpsertTestimonialDto): Promise<Testimonial> {
     return this.testimonialRepo.save(this.testimonialRepo.create(dto));
   }
-  async updateTestimonial(id: string, dto: UpsertTestimonialDto): Promise<Testimonial> {
+  async updateTestimonial(
+    id: string,
+    dto: UpsertTestimonialDto,
+  ): Promise<Testimonial> {
     const row = await this.testimonialRepo.findOne({ where: { id } });
     if (!row) throw new NotFoundException('Testimonial not found');
     Object.assign(row, dto);
@@ -42,7 +53,10 @@ export class ContentService {
 
   // FAQs
   findActiveFaqs(): Promise<FaqItem[]> {
-    return this.faqRepo.find({ where: { isActive: true }, order: { sortOrder: 'ASC' } });
+    return this.faqRepo.find({
+      where: { isActive: true },
+      order: { sortOrder: 'ASC' },
+    });
   }
   findAllFaqs(): Promise<FaqItem[]> {
     return this.faqRepo.find({ order: { sortOrder: 'ASC' } });
@@ -62,7 +76,10 @@ export class ContentService {
 
   // Social posts
   findActiveSocialPosts(): Promise<SocialPost[]> {
-    return this.socialRepo.find({ where: { isActive: true }, order: { sortOrder: 'ASC' } });
+    return this.socialRepo.find({
+      where: { isActive: true },
+      order: { sortOrder: 'ASC' },
+    });
   }
   findAllSocialPosts(): Promise<SocialPost[]> {
     return this.socialRepo.find({ order: { sortOrder: 'ASC' } });
@@ -70,7 +87,10 @@ export class ContentService {
   createSocialPost(dto: UpsertSocialPostDto): Promise<SocialPost> {
     return this.socialRepo.save(this.socialRepo.create(dto));
   }
-  async updateSocialPost(id: string, dto: UpsertSocialPostDto): Promise<SocialPost> {
+  async updateSocialPost(
+    id: string,
+    dto: UpsertSocialPostDto,
+  ): Promise<SocialPost> {
     const row = await this.socialRepo.findOne({ where: { id } });
     if (!row) throw new NotFoundException('Social post not found');
     Object.assign(row, dto);
@@ -81,7 +101,9 @@ export class ContentService {
   }
 
   // Blog posts
-  async findPublishedBlogPosts(pagination: PaginationDto): Promise<PaginatedResult<BlogPost>> {
+  async findPublishedBlogPosts(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BlogPost>> {
     const [items, total] = await this.blogRepo.findAndCount({
       where: { isPublished: true },
       order: { publishedAt: 'DESC' },
@@ -91,7 +113,9 @@ export class ContentService {
     return { items, total, page: pagination.page, limit: pagination.limit };
   }
   async findPublishedBySlug(slug: string): Promise<BlogPost> {
-    const post = await this.blogRepo.findOne({ where: { slug, isPublished: true } });
+    const post = await this.blogRepo.findOne({
+      where: { slug, isPublished: true },
+    });
     if (!post) throw new NotFoundException('Blog post not found');
     return post;
   }

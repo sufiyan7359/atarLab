@@ -8,7 +8,10 @@ import { SearchController } from './search.controller';
 import { ProductsModule } from '../products/products.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, Category, Brand]), ProductsModule],
+  imports: [
+    TypeOrmModule.forFeature([Product, Category, Brand]),
+    ProductsModule,
+  ],
   controllers: [SearchController],
   providers: [SearchService],
 })

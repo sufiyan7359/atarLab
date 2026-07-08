@@ -20,7 +20,11 @@ const PERMISSIONS: Array<{ name: string; module: string }> = [
 const ROLE_PERMISSIONS: Record<RoleName, string[]> = {
   [RoleName.SUPER_ADMIN]: PERMISSIONS.map((p) => p.name),
   [RoleName.ADMIN]: PERMISSIONS.map((p) => p.name),
-  [RoleName.STAFF]: ['orders.view_all', 'orders.update_status', 'reviews.moderate'],
+  [RoleName.STAFF]: [
+    'orders.view_all',
+    'orders.update_status',
+    'reviews.moderate',
+  ],
   [RoleName.CUSTOMER]: [],
 };
 
@@ -36,7 +40,10 @@ export async function seedRoles(dataSource: DataSource): Promise<void> {
   }
 
   for (const roleName of Object.values(RoleName)) {
-    let role = await roleRepo.findOne({ where: { name: roleName }, relations: { permissions: true } });
+    let role = await roleRepo.findOne({
+      where: { name: roleName },
+      relations: { permissions: true },
+    });
     const permissions = (ROLE_PERMISSIONS[roleName] ?? [])
       .map((name) => permissionsByName.get(name))
       .filter((p): p is Permission => !!p);
@@ -49,5 +56,7 @@ export async function seedRoles(dataSource: DataSource): Promise<void> {
     await roleRepo.save(role);
   }
 
-  console.log(`Seeded ${PERMISSIONS.length} permissions and ${Object.values(RoleName).length} roles.`);
+  console.log(
+    `Seeded ${PERMISSIONS.length} permissions and ${Object.values(RoleName).length} roles.`,
+  );
 }

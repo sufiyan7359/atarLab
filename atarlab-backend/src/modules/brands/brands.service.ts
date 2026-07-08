@@ -7,10 +7,15 @@ import { UpdateBrandDto } from './dto/update-brand.dto';
 
 @Injectable()
 export class BrandsService {
-  constructor(@InjectRepository(Brand) private readonly repo: Repository<Brand>) {}
+  constructor(
+    @InjectRepository(Brand) private readonly repo: Repository<Brand>,
+  ) {}
 
   findAll(): Promise<Brand[]> {
-    return this.repo.find({ where: { isActive: true }, order: { name: 'ASC' } });
+    return this.repo.find({
+      where: { isActive: true },
+      order: { name: 'ASC' },
+    });
   }
 
   async findBySlug(slug: string): Promise<Brand> {

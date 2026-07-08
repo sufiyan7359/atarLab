@@ -43,7 +43,10 @@ export class RolesPermissionsController {
   }
 
   @Patch('roles/:id')
-  updateRole(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateRoleDto) {
+  updateRole(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateRoleDto,
+  ) {
     return this.service.updateRole(id, dto);
   }
 

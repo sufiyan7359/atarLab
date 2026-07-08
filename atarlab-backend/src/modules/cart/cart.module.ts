@@ -8,7 +8,10 @@ import { CartController } from './cart.controller';
 import { CouponsModule } from '../coupons/coupons.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Cart, CartItem, ProductVariant]), CouponsModule],
+  imports: [
+    TypeOrmModule.forFeature([Cart, CartItem, ProductVariant]),
+    CouponsModule,
+  ],
   controllers: [CartController],
   providers: [CartService],
   exports: [CartService],

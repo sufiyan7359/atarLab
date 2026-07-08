@@ -11,13 +11,20 @@ export async function seedAdmin(dataSource: DataSource): Promise<void> {
   const userRepo = dataSource.getRepository(User);
   const roleRepo = dataSource.getRepository(Role);
 
-  const superAdminRole = await roleRepo.findOne({ where: { name: RoleName.SUPER_ADMIN } });
+  const superAdminRole = await roleRepo.findOne({
+    where: { name: RoleName.SUPER_ADMIN },
+  });
   if (!superAdminRole) {
-    console.warn('SUPER_ADMIN role not found — run seedRoles first. Skipping admin seed.');
+    console.warn(
+      'SUPER_ADMIN role not found — run seedRoles first. Skipping admin seed.',
+    );
     return;
   }
 
-  let admin = await userRepo.findOne({ where: { email: ADMIN_EMAIL }, relations: { roles: true } });
+  let admin = await userRepo.findOne({
+    where: { email: ADMIN_EMAIL },
+    relations: { roles: true },
+  });
   if (!admin) {
     admin = userRepo.create({
       email: ADMIN_EMAIL,
@@ -31,5 +38,7 @@ export async function seedAdmin(dataSource: DataSource): Promise<void> {
   }
   await userRepo.save(admin);
 
-  console.log(`Seeded admin user: ${ADMIN_EMAIL} / ${ADMIN_PASSWORD} (change this password in any shared environment).`);
+  console.log(
+    `Seeded admin user: ${ADMIN_EMAIL} / ${ADMIN_PASSWORD} (change this password in any shared environment).`,
+  );
 }

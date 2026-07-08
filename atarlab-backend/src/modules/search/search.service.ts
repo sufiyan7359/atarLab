@@ -10,8 +10,10 @@ const SIMILARITY_THRESHOLD = 0.3;
 @Injectable()
 export class SearchService {
   constructor(
-    @InjectRepository(Product) private readonly productRepo: Repository<Product>,
-    @InjectRepository(Category) private readonly categoryRepo: Repository<Category>,
+    @InjectRepository(Product)
+    private readonly productRepo: Repository<Product>,
+    @InjectRepository(Category)
+    private readonly categoryRepo: Repository<Category>,
     @InjectRepository(Brand) private readonly brandRepo: Repository<Brand>,
   ) {}
 
@@ -28,7 +30,9 @@ export class SearchService {
         .getMany(),
       this.categoryRepo
         .createQueryBuilder('category')
-        .where('category.isActive = true AND category.name ILIKE :like', { like })
+        .where('category.isActive = true AND category.name ILIKE :like', {
+          like,
+        })
         .take(5)
         .getMany(),
       this.brandRepo
@@ -40,7 +44,11 @@ export class SearchService {
 
     // A plain ILIKE finds nothing on a typo (e.g. "atarr") — fall back to pg_trgm
     // similarity so a near-miss still surfaces results instead of an empty dropdown.
-    if (products.length === 0 && categories.length === 0 && brands.length === 0) {
+    if (
+      products.length === 0 &&
+      categories.length === 0 &&
+      brands.length === 0
+    ) {
       return this.suggestFuzzy(q);
     }
 
@@ -53,30 +61,39 @@ export class SearchService {
         .createQueryBuilder('product')
         .leftJoinAndSelect('product.images', 'image')
         .addSelect('word_similarity(:q, product.name)', 'name_similarity')
-        .where('product.isActive = true AND word_similarity(:q, product.name) > :threshold', {
-          q,
-          threshold: SIMILARITY_THRESHOLD,
-        })
+        .where(
+          'product.isActive = true AND word_similarity(:q, product.name) > :threshold',
+          {
+            q,
+            threshold: SIMILARITY_THRESHOLD,
+          },
+        )
         .orderBy('name_similarity', 'DESC')
         .take(5)
         .getMany(),
       this.categoryRepo
         .createQueryBuilder('category')
         .addSelect('word_similarity(:q, category.name)', 'name_similarity')
-        .where('category.isActive = true AND word_similarity(:q, category.name) > :threshold', {
-          q,
-          threshold: SIMILARITY_THRESHOLD,
-        })
+        .where(
+          'category.isActive = true AND word_similarity(:q, category.name) > :threshold',
+          {
+            q,
+            threshold: SIMILARITY_THRESHOLD,
+          },
+        )
         .orderBy('name_similarity', 'DESC')
         .take(5)
         .getMany(),
       this.brandRepo
         .createQueryBuilder('brand')
         .addSelect('word_similarity(:q, brand.name)', 'name_similarity')
-        .where('brand.isActive = true AND word_similarity(:q, brand.name) > :threshold', {
-          q,
-          threshold: SIMILARITY_THRESHOLD,
-        })
+        .where(
+          'brand.isActive = true AND word_similarity(:q, brand.name) > :threshold',
+          {
+            q,
+            threshold: SIMILARITY_THRESHOLD,
+          },
+        )
         .orderBy('name_similarity', 'DESC')
         .take(5)
         .getMany(),

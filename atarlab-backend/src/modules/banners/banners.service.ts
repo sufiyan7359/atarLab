@@ -7,7 +7,9 @@ import { UpdateBannerDto } from './dto/update-banner.dto';
 
 @Injectable()
 export class BannersService {
-  constructor(@InjectRepository(Banner) private readonly repo: Repository<Banner>) {}
+  constructor(
+    @InjectRepository(Banner) private readonly repo: Repository<Banner>,
+  ) {}
 
   async findActiveByPosition(position: BannerPosition): Promise<Banner[]> {
     const now = new Date();
@@ -16,7 +18,8 @@ export class BannersService {
       order: { sortOrder: 'ASC' },
     });
     return banners.filter(
-      (b) => (!b.startsAt || b.startsAt <= now) && (!b.endsAt || b.endsAt >= now),
+      (b) =>
+        (!b.startsAt || b.startsAt <= now) && (!b.endsAt || b.endsAt >= now),
     );
   }
 

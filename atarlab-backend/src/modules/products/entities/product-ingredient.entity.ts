@@ -8,7 +8,9 @@ export class ProductIngredient extends BaseEntity {
   @Column({ name: 'product_id', type: 'uuid' })
   productId: string;
 
-  @ManyToOne(() => Product, (product) => product.ingredients, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Product, (product) => product.ingredients, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'product_id' })
   product: Product;
 

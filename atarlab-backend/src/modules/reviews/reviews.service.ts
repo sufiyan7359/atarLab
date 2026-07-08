@@ -1,11 +1,18 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import { Review } from './entities/review.entity';
 import { OrderItem } from '../orders/entities/order-item.entity';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ProductsService } from '../products/products.service';
-import { PaginatedResult, PaginationDto } from '../../common/dto/pagination.dto';
+import {
+  PaginatedResult,
+  PaginationDto,
+} from '../../common/dto/pagination.dto';
 import { OrderStatus } from '../../common/enums';
 
 const UNREVIEWABLE_STATUSES = [OrderStatus.PENDING, OrderStatus.CANCELLED];
@@ -14,11 +21,15 @@ const UNREVIEWABLE_STATUSES = [OrderStatus.PENDING, OrderStatus.CANCELLED];
 export class ReviewsService {
   constructor(
     @InjectRepository(Review) private readonly reviewRepo: Repository<Review>,
-    @InjectRepository(OrderItem) private readonly orderItemRepo: Repository<OrderItem>,
+    @InjectRepository(OrderItem)
+    private readonly orderItemRepo: Repository<OrderItem>,
     private readonly productsService: ProductsService,
   ) {}
 
-  async findApprovedForProduct(productId: string, pagination: PaginationDto): Promise<PaginatedResult<Review>> {
+  async findApprovedForProduct(
+    productId: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<Review>> {
     const [items, total] = await this.reviewRepo.findAndCount({
       where: { productId, isApproved: true },
       order: { createdAt: 'DESC' },
@@ -28,20 +39,29 @@ export class ReviewsService {
     return { items, total, page: pagination.page, limit: pagination.limit };
   }
 
-  async create(userId: string, productId: string, dto: CreateReviewDto): Promise<Review> {
+  async create(
+    userId: string,
+    productId: string,
+    dto: CreateReviewDto,
+  ): Promise<Review> {
     const verifiedOrderItem = await this.orderItemRepo
       .createQueryBuilder('item')
       .innerJoin('item.variant', 'variant')
       .innerJoin('item.order', 'order')
       .where('variant.product_id = :productId', { productId })
       .andWhere('order.user_id = :userId', { userId })
-      .andWhere('order.status NOT IN (:...statuses)', { statuses: UNREVIEWABLE_STATUSES })
+      .andWhere('order.status NOT IN (:...statuses)', {
+        statuses: UNREVIEWABLE_STATUSES,
+      })
       .getOne();
 
     const orderItemId = verifiedOrderItem?.id ?? null;
 
-    const existing = await this.reviewRepo.findOne({ where: { productId, userId, orderItemId: orderItemId ?? IsNull() } });
-    if (existing) throw new BadRequestException('You have already reviewed this product');
+    const existing = await this.reviewRepo.findOne({
+      where: { productId, userId, orderItemId: orderItemId ?? IsNull() },
+    });
+    if (existing)
+      throw new BadRequestException('You have already reviewed this product');
 
     const review = await this.reviewRepo.save(
       this.reviewRepo.create({
@@ -60,7 +80,9 @@ export class ReviewsService {
     return review;
   }
 
-  async findPendingAdmin(pagination: PaginationDto): Promise<PaginatedResult<Review>> {
+  async findPendingAdmin(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<Review>> {
     const [items, total] = await this.reviewRepo.findAndCount({
       where: { isApproved: false },
       order: { createdAt: 'ASC' },
@@ -89,9 +111,15 @@ export class ReviewsService {
       .createQueryBuilder('review')
       .select('COALESCE(AVG(review.rating), 0)', 'avg')
       .addSelect('COUNT(*)', 'count')
-      .where('review.product_id = :productId AND review.is_approved = true', { productId })
+      .where('review.product_id = :productId AND review.is_approved = true', {
+        productId,
+      })
       .getRawOne<{ avg: string; count: string }>();
-    await this.productsService.recalculateRating(productId, Number(result?.avg ?? 0), Number(result?.count ?? 0));
+    await this.productsService.recalculateRating(
+      productId,
+      Number(result?.avg ?? 0),
+      Number(result?.count ?? 0),
+    );
   }
 
   private async getOrThrow(id: string): Promise<Review> {

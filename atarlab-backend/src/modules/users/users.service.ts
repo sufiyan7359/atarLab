@@ -1,15 +1,24 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as argon2 from 'argon2';
 import { User } from './entities/user.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { PaginationDto, PaginatedResult } from '../../common/dto/pagination.dto';
+import {
+  PaginationDto,
+  PaginatedResult,
+} from '../../common/dto/pagination.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectRepository(User) private readonly userRepo: Repository<User>) {}
+  constructor(
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
+  ) {}
 
   findById(id: string): Promise<User | null> {
     return this.userRepo.findOne({ where: { id } });
@@ -75,7 +84,11 @@ export class UsersService {
     return this.userRepo.save(user);
   }
 
-  async linkGoogleAccount(user: User, googleId: string, avatarUrl?: string): Promise<User> {
+  async linkGoogleAccount(
+    user: User,
+    googleId: string,
+    avatarUrl?: string,
+  ): Promise<User> {
     user.googleId = googleId;
     if (avatarUrl && !user.avatarUrl) user.avatarUrl = avatarUrl;
     if (!user.emailVerifiedAt) user.emailVerifiedAt = new Date();
@@ -102,7 +115,9 @@ export class UsersService {
       select: { id: true, passwordHash: true },
     });
     if (!target?.passwordHash) {
-      throw new BadRequestException('This account has no password set (social login only)');
+      throw new BadRequestException(
+        'This account has no password set (social login only)',
+      );
     }
     const valid = await argon2.verify(target.passwordHash, dto.currentPassword);
     if (!valid) throw new BadRequestException('Current password is incorrect');
@@ -115,7 +130,9 @@ export class UsersService {
     await this.userRepo.update(userId, { passwordHash });
   }
 
-  async findAllAdmin(pagination: PaginationDto): Promise<PaginatedResult<User>> {
+  async findAllAdmin(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<User>> {
     const [items, total] = await this.userRepo.findAndCount({
       skip: pagination.skip,
       take: pagination.limit,

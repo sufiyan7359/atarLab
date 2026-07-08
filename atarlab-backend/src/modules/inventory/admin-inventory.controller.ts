@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RoleName } from '../../common/enums';
@@ -16,12 +24,18 @@ export class AdminInventoryController {
   constructor(private readonly inventoryService: InventoryService) {}
 
   @Get()
-  findAll(@Query() pagination: PaginationDto, @Query('lowStockOnly') lowStockOnly?: string) {
+  findAll(
+    @Query() pagination: PaginationDto,
+    @Query('lowStockOnly') lowStockOnly?: string,
+  ) {
     return this.inventoryService.findAll(pagination, lowStockOnly === 'true');
   }
 
   @Get(':variantId/movements')
-  getMovements(@Param('variantId', ParseUUIDPipe) variantId: string, @Query() pagination: PaginationDto) {
+  getMovements(
+    @Param('variantId', ParseUUIDPipe) variantId: string,
+    @Query() pagination: PaginationDto,
+  ) {
     return this.inventoryService.getMovements(variantId, pagination);
   }
 

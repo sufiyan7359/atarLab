@@ -1,7 +1,16 @@
 import { DataSource } from 'typeorm';
-import { Banner, BannerPosition } from '../../modules/banners/entities/banner.entity';
+import {
+  Banner,
+  BannerPosition,
+} from '../../modules/banners/entities/banner.entity';
 
-const BANNERS: Array<{ title: string; imageUrl: string; linkUrl: string; position: BannerPosition; sortOrder: number }> = [
+const BANNERS: Array<{
+  title: string;
+  imageUrl: string;
+  linkUrl: string;
+  position: BannerPosition;
+  sortOrder: number;
+}> = [
   {
     title: 'Winter Oud Collection',
     imageUrl: 'https://picsum.photos/seed/hero-oud/1600/700',

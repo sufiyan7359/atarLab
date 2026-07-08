@@ -1,4 +1,13 @@
-import { BadRequestException, Body, Controller, Headers, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Headers,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+} from '@nestjs/common';
 import type { RawBodyRequest } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -35,10 +44,14 @@ export class PaymentsController {
   @ApiBearerAuth()
   @Post('razorpay/verify')
   @HttpCode(HttpStatus.OK)
-  async verify(@CurrentUser() user: RequestUser, @Body() dto: VerifyRazorpayPaymentDto) {
+  async verify(
+    @CurrentUser() user: RequestUser,
+    @Body() dto: VerifyRazorpayPaymentDto,
+  ) {
     const order = await this.ordersService.findOneOwned(dto.orderId, user.id);
     const payment = await this.paymentsService.findByOrderId(order.id);
-    if (!payment) throw new BadRequestException('No payment record found for this order');
+    if (!payment)
+      throw new BadRequestException('No payment record found for this order');
 
     const isValid = this.razorpayProvider.verifyPaymentSignature(
       dto.razorpayOrderId,
@@ -47,17 +60,28 @@ export class PaymentsController {
     );
     if (!isValid) throw new BadRequestException('Invalid payment signature');
 
-    await this.paymentsService.markStatus(payment.id, PaymentTxnStatus.CAPTURED, dto.razorpayPaymentId);
-    const updated = await this.ordersService.markPaid(order.id, 'Payment verified');
+    await this.paymentsService.markStatus(
+      payment.id,
+      PaymentTxnStatus.CAPTURED,
+      dto.razorpayPaymentId,
+    );
+    const updated = await this.ordersService.markPaid(
+      order.id,
+      'Payment verified',
+    );
     return { order: updated };
   }
 
   @Public()
   @Post('razorpay/webhook')
   @HttpCode(HttpStatus.OK)
-  async webhook(@Req() req: RawBodyRequest<Request>, @Headers('x-razorpay-signature') signature: string) {
+  async webhook(
+    @Req() req: RawBodyRequest<Request>,
+    @Headers('x-razorpay-signature') signature: string,
+  ) {
     const app = this.configService.get<AppConfig>('app')!;
-    if (!req.rawBody || !signature) throw new BadRequestException('Missing webhook signature');
+    if (!req.rawBody || !signature)
+      throw new BadRequestException('Missing webhook signature');
 
     const isValid = this.razorpayProvider.verifyWebhookSignature(
       req.rawBody,
@@ -66,23 +90,42 @@ export class PaymentsController {
     );
     if (!isValid) throw new BadRequestException('Invalid webhook signature');
 
-    const body = JSON.parse(req.rawBody.toString('utf8')) as RazorpayWebhookPayload;
+    const body = JSON.parse(
+      req.rawBody.toString('utf8'),
+    ) as RazorpayWebhookPayload;
     const paymentEntity = body.payload?.payment?.entity;
     if (!paymentEntity) return { received: true };
 
-    const existing = await this.paymentsService.findByProviderPaymentId(paymentEntity.id);
+    const existing = await this.paymentsService.findByProviderPaymentId(
+      paymentEntity.id,
+    );
     if (existing && existing.status === PaymentTxnStatus.CAPTURED) {
       return { received: true }; // idempotent: already processed
     }
 
-    const payment = await this.paymentsService.findByProviderOrderId(paymentEntity.order_id);
+    const payment = await this.paymentsService.findByProviderOrderId(
+      paymentEntity.order_id,
+    );
     if (!payment) return { received: true };
 
     if (body.event === 'payment.captured') {
-      await this.paymentsService.markStatus(payment.id, PaymentTxnStatus.CAPTURED, paymentEntity.id, body as unknown as Record<string, unknown>);
-      await this.ordersService.markPaid(payment.orderId, 'Payment captured (webhook)');
+      await this.paymentsService.markStatus(
+        payment.id,
+        PaymentTxnStatus.CAPTURED,
+        paymentEntity.id,
+        body as unknown as Record<string, unknown>,
+      );
+      await this.ordersService.markPaid(
+        payment.orderId,
+        'Payment captured (webhook)',
+      );
     } else if (body.event === 'payment.failed') {
-      await this.paymentsService.markStatus(payment.id, PaymentTxnStatus.FAILED, paymentEntity.id, body as unknown as Record<string, unknown>);
+      await this.paymentsService.markStatus(
+        payment.id,
+        PaymentTxnStatus.FAILED,
+        paymentEntity.id,
+        body as unknown as Record<string, unknown>,
+      );
     }
 
     return { received: true };

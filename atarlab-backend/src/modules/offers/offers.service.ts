@@ -7,7 +7,9 @@ import { UpdateOfferDto } from './dto/update-offer.dto';
 
 @Injectable()
 export class OffersService {
-  constructor(@InjectRepository(Offer) private readonly repo: Repository<Offer>) {}
+  constructor(
+    @InjectRepository(Offer) private readonly repo: Repository<Offer>,
+  ) {}
 
   async findActive(): Promise<Offer[]> {
     const now = new Date();
@@ -17,7 +19,8 @@ export class OffersService {
       order: { createdAt: 'DESC' },
     });
     return offers.filter(
-      (o) => (!o.startsAt || o.startsAt <= now) && (!o.endsAt || o.endsAt >= now),
+      (o) =>
+        (!o.startsAt || o.startsAt <= now) && (!o.endsAt || o.endsAt >= now),
     );
   }
 

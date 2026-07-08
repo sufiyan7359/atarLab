@@ -38,14 +38,21 @@ export class OtpService {
     }
   }
 
-  async verify(identifier: string, purpose: OtpPurpose, code: string): Promise<void> {
+  async verify(
+    identifier: string,
+    purpose: OtpPurpose,
+    code: string,
+  ): Promise<void> {
     const otp = await this.otpRepo.findOne({
       where: { identifier, purpose, consumedAt: IsNull() },
       order: { createdAt: 'DESC' },
     });
-    if (!otp) throw new BadRequestException('No pending OTP for this identifier');
-    if (otp.expiresAt < new Date()) throw new BadRequestException('OTP has expired');
-    if (otp.attempts >= MAX_ATTEMPTS) throw new BadRequestException('Too many attempts, request a new OTP');
+    if (!otp)
+      throw new BadRequestException('No pending OTP for this identifier');
+    if (otp.expiresAt < new Date())
+      throw new BadRequestException('OTP has expired');
+    if (otp.attempts >= MAX_ATTEMPTS)
+      throw new BadRequestException('Too many attempts, request a new OTP');
 
     const valid = await argon2.verify(otp.codeHash, code);
     if (!valid) {

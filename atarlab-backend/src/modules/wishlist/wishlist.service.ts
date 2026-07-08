@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import { Wishlist } from './entities/wishlist.entity';
@@ -13,8 +17,10 @@ import { Cart } from '../cart/entities/cart.entity';
 export class WishlistService {
   constructor(
     @InjectRepository(Wishlist) private readonly repo: Repository<Wishlist>,
-    @InjectRepository(Product) private readonly productRepo: Repository<Product>,
-    @InjectRepository(ProductVariant) private readonly variantRepo: Repository<ProductVariant>,
+    @InjectRepository(Product)
+    private readonly productRepo: Repository<Product>,
+    @InjectRepository(ProductVariant)
+    private readonly variantRepo: Repository<ProductVariant>,
     private readonly cartService: CartService,
   ) {}
 
@@ -24,13 +30,19 @@ export class WishlistService {
 
   async add(userId: string, dto: AddWishlistItemDto): Promise<Wishlist> {
     const existing = await this.repo.findOne({
-      where: { userId, productId: dto.productId, variantId: dto.variantId ?? IsNull() },
+      where: {
+        userId,
+        productId: dto.productId,
+        variantId: dto.variantId ?? IsNull(),
+      },
     });
     if (existing) return existing;
 
     const priceAtAdd = dto.variantId
-      ? (await this.variantRepo.findOne({ where: { id: dto.variantId } }))?.price
-      : (await this.productRepo.findOne({ where: { id: dto.productId } }))?.basePrice;
+      ? (await this.variantRepo.findOne({ where: { id: dto.variantId } }))
+          ?.price
+      : (await this.productRepo.findOne({ where: { id: dto.productId } }))
+          ?.basePrice;
 
     const item = this.repo.create({
       userId,
@@ -50,11 +62,19 @@ export class WishlistService {
     const item = await this.getOwned(id, userId);
     const variant = item.variantId
       ? await this.variantRepo.findOne({ where: { id: item.variantId } })
-      : await this.variantRepo.findOne({ where: { productId: item.productId, isActive: true } });
-    if (!variant) throw new NotFoundException('No purchasable variant found for this product');
+      : await this.variantRepo.findOne({
+          where: { productId: item.productId, isActive: true },
+        });
+    if (!variant)
+      throw new NotFoundException(
+        'No purchasable variant found for this product',
+      );
 
     const identity: CartIdentity = { userId };
-    const cart = await this.cartService.addItem(identity, { variantId: variant.id, quantity: 1 });
+    const cart = await this.cartService.addItem(identity, {
+      variantId: variant.id,
+      quantity: 1,
+    });
     await this.repo.remove(item);
     return cart;
   }

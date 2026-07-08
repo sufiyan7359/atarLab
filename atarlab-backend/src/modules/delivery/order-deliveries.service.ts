@@ -9,19 +9,30 @@ const WAREHOUSE = { lat: 19.076, lng: 72.8777 };
 
 @Injectable()
 export class OrderDeliveriesService {
-  constructor(@InjectRepository(OrderDelivery) private readonly repo: Repository<OrderDelivery>) {}
+  constructor(
+    @InjectRepository(OrderDelivery)
+    private readonly repo: Repository<OrderDelivery>,
+  ) {}
 
   getByOrderId(orderId: string): Promise<OrderDelivery | null> {
-    return this.repo.findOne({ where: { orderId }, relations: { agent: true } });
+    return this.repo.findOne({
+      where: { orderId },
+      relations: { agent: true },
+    });
   }
 
   async requireByOrderId(orderId: string): Promise<OrderDelivery> {
     const delivery = await this.getByOrderId(orderId);
-    if (!delivery) throw new NotFoundException('No delivery assigned for this order yet');
+    if (!delivery)
+      throw new NotFoundException('No delivery assigned for this order yet');
     return delivery;
   }
 
-  async assignAgent(orderId: string, agentId: string, etaMinutes?: number): Promise<OrderDelivery> {
+  async assignAgent(
+    orderId: string,
+    agentId: string,
+    etaMinutes?: number,
+  ): Promise<OrderDelivery> {
     let delivery = await this.repo.findOne({ where: { orderId } });
     const destination = this.deriveDestination(orderId);
     if (!delivery) {
@@ -36,11 +47,18 @@ export class OrderDeliveriesService {
     delivery.assignedAt = new Date();
     delivery.deliveredAt = null;
     const saved = await this.repo.save(delivery);
-    const withAgent = await this.repo.findOne({ where: { id: saved.id }, relations: { agent: true } });
+    const withAgent = await this.repo.findOne({
+      where: { id: saved.id },
+      relations: { agent: true },
+    });
     return withAgent!;
   }
 
-  async updatePosition(orderId: string, lat: number, lng: number): Promise<void> {
+  async updatePosition(
+    orderId: string,
+    lat: number,
+    lng: number,
+  ): Promise<void> {
     await this.repo.update({ orderId }, { currentLat: lat, currentLng: lng });
   }
 

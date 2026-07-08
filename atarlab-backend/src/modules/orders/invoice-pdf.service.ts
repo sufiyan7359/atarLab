@@ -8,7 +8,11 @@ export class InvoicePdfService {
   generate(order: Order, invoice: Invoice): PDFKit.PDFDocument {
     const doc = new PDFDocument({ size: 'A4', margin: 50 });
 
-    doc.fontSize(20).text('AtarLab', { continued: true }).fontSize(10).text('  Luxury Attar & Perfume', { align: 'left' });
+    doc
+      .fontSize(20)
+      .text('AtarLab', { continued: true })
+      .fontSize(10)
+      .text('  Luxury Attar & Perfume', { align: 'left' });
     doc.moveDown();
     doc.fontSize(14).text(`Invoice ${invoice.invoiceNumber}`);
     doc.fontSize(10).text(`Order: ${order.orderNumber}`);
@@ -30,7 +34,9 @@ export class InvoicePdfService {
     doc.text(`Discount: -₹${order.discountTotal}`);
     doc.text(`Shipping: ₹${order.shippingFee}`);
     doc.text(`Tax: ₹${order.taxTotal}`);
-    doc.fontSize(12).text(`Grand Total: ₹${order.grandTotal}`, { underline: true });
+    doc
+      .fontSize(12)
+      .text(`Grand Total: ₹${order.grandTotal}`, { underline: true });
 
     doc.end();
     return doc;

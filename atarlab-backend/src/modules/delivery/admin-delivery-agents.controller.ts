@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DeliveryAgentsService } from './delivery-agents.service';
 import { UpsertDeliveryAgentDto } from './dto/upsert-delivery-agent.dto';
@@ -23,7 +31,10 @@ export class AdminDeliveryAgentsController {
   }
 
   @Patch(':id')
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpsertDeliveryAgentDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpsertDeliveryAgentDto,
+  ) {
     return this.agentsService.update(id, dto);
   }
 }

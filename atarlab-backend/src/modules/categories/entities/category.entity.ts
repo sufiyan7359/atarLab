@@ -1,4 +1,11 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 
 @Entity('categories')
@@ -7,7 +14,9 @@ export class Category extends BaseEntity {
   @Column({ name: 'parent_id', type: 'uuid', nullable: true })
   parentId: string | null;
 
-  @ManyToOne(() => Category, (category) => category.children, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Category, (category) => category.children, {
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'parent_id' })
   parent: Category | null;
 

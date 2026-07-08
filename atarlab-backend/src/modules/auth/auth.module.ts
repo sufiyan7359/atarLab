@@ -34,7 +34,13 @@ const googleStrategyProvider: Provider = {
     UsersModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, TokenService, OtpService, JwtStrategy, googleStrategyProvider],
+  providers: [
+    AuthService,
+    TokenService,
+    OtpService,
+    JwtStrategy,
+    googleStrategyProvider,
+  ],
   exports: [AuthService, TokenService],
 })
 export class AuthModule {}

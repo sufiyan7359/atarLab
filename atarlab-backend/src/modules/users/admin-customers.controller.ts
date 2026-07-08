@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -23,7 +31,10 @@ export class AdminCustomersController {
   }
 
   @Patch(':id/status')
-  setStatus(@Param('id', ParseUUIDPipe) id: string, @Body('isActive') isActive: boolean) {
+  setStatus(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body('isActive') isActive: boolean,
+  ) {
     return this.usersService.setActiveStatus(id, isActive);
   }
 }

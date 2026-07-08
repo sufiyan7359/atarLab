@@ -23,7 +23,10 @@ export class UsersController {
   }
 
   @Patch('me/password')
-  changePassword(@CurrentUser() user: RequestUser, @Body() dto: ChangePasswordDto) {
+  changePassword(
+    @CurrentUser() user: RequestUser,
+    @Body() dto: ChangePasswordDto,
+  ) {
     return this.usersService.changePassword(user.id, dto);
   }
 }

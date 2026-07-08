@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { OrdersService } from './orders.service';
@@ -25,19 +34,28 @@ export class OrdersController {
   }
 
   @Get()
-  findAll(@CurrentUser() user: RequestUser, @Query() pagination: PaginationDto) {
+  findAll(
+    @CurrentUser() user: RequestUser,
+    @Query() pagination: PaginationDto,
+  ) {
     return this.ordersService.findAllForUser(user.id, pagination);
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: RequestUser) {
+  async findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: RequestUser,
+  ) {
     const order = await this.ordersService.findOneOwned(id, user.id);
     const history = await this.ordersService.getStatusHistory(id);
     return { ...order, statusHistory: history };
   }
 
   @Get(':id/tracking')
-  async tracking(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: RequestUser) {
+  async tracking(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: RequestUser,
+  ) {
     const order = await this.ordersService.findOneOwned(id, user.id);
     const history = await this.ordersService.getStatusHistory(id);
     const delivery = await this.orderDeliveriesService.getByOrderId(id);
@@ -45,17 +63,27 @@ export class OrdersController {
   }
 
   @Post(':id/cancel')
-  cancel(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: RequestUser) {
+  cancel(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: RequestUser,
+  ) {
     return this.ordersService.cancel(id, user.id);
   }
 
   @Get(':id/invoice')
-  async invoice(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: RequestUser, @Res() res: Response) {
+  async invoice(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: RequestUser,
+    @Res() res: Response,
+  ) {
     const order = await this.ordersService.findOneOwned(id, user.id);
     const invoiceRecord = await this.ordersService.getInvoice(id);
     const doc = this.invoicePdfService.generate(order, invoiceRecord);
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `inline; filename="${invoiceRecord.invoiceNumber}.pdf"`);
+    res.setHeader(
+      'Content-Disposition',
+      `inline; filename="${invoiceRecord.invoiceNumber}.pdf"`,
+    );
     doc.pipe(res);
   }
 }

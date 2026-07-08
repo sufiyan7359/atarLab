@@ -1,9 +1,17 @@
 import { Type } from 'class-transformer';
-import { IsEnum, IsIn, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsIn,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { Gender, Concentration } from '../../../common/enums';
 
-export type ProductSort = 'newest' | 'price_asc' | 'price_desc' | 'rating' | 'bestseller';
+export type ProductSort =
+  'newest' | 'price_asc' | 'price_desc' | 'rating' | 'bestseller';
 
 export class QueryProductsDto extends PaginationDto {
   @IsOptional()

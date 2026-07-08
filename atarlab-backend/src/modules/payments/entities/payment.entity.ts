@@ -1,4 +1,12 @@
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Order } from '../../orders/entities/order.entity';
 import { PaymentProvider, PaymentTxnStatus } from '../../../common/enums';
 
@@ -18,10 +26,21 @@ export class Payment {
   @Column({ type: 'varchar', length: 20 })
   provider: PaymentProvider;
 
-  @Column({ name: 'provider_order_id', type: 'varchar', length: 100, nullable: true })
+  @Column({
+    name: 'provider_order_id',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+  })
   providerOrderId: string | null;
 
-  @Column({ name: 'provider_payment_id', type: 'varchar', length: 100, nullable: true, unique: true })
+  @Column({
+    name: 'provider_payment_id',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+    unique: true,
+  })
   providerPaymentId: string | null;
 
   @Column({ type: 'numeric', precision: 10, scale: 2 })

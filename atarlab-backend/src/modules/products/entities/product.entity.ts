@@ -1,4 +1,12 @@
-import { Column, DeleteDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Column,
+  DeleteDateColumn,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { Brand } from '../../brands/entities/brand.entity';
 import { Category } from '../../categories/entities/category.entity';
@@ -32,7 +40,12 @@ export class Product extends BaseEntity {
   @Column({ type: 'varchar', length: 220, unique: true })
   slug: string;
 
-  @Column({ name: 'short_description', type: 'varchar', length: 500, nullable: true })
+  @Column({
+    name: 'short_description',
+    type: 'varchar',
+    length: 500,
+    nullable: true,
+  })
   shortDescription: string | null;
 
   @Column({ type: 'text', nullable: true })
@@ -66,7 +79,13 @@ export class Product extends BaseEntity {
   @Column({ name: 'is_featured', type: 'boolean', default: false })
   isFeatured: boolean;
 
-  @Column({ name: 'avg_rating', type: 'numeric', precision: 3, scale: 2, default: 0 })
+  @Column({
+    name: 'avg_rating',
+    type: 'numeric',
+    precision: 3,
+    scale: 2,
+    default: 0,
+  })
   avgRating: number;
 
   @Column({ name: 'review_count', type: 'int', default: 0 })

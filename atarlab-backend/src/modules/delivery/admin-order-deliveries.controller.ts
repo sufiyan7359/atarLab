@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { OrderDeliveriesService } from './order-deliveries.service';
 import { AssignAgentDto } from './dto/assign-agent.dto';
@@ -18,7 +25,14 @@ export class AdminOrderDeliveriesController {
   }
 
   @Post('assign')
-  assign(@Param('orderId', ParseUUIDPipe) orderId: string, @Body() dto: AssignAgentDto) {
-    return this.deliveriesService.assignAgent(orderId, dto.agentId, dto.etaMinutes);
+  assign(
+    @Param('orderId', ParseUUIDPipe) orderId: string,
+    @Body() dto: AssignAgentDto,
+  ) {
+    return this.deliveriesService.assignAgent(
+      orderId,
+      dto.agentId,
+      dto.etaMinutes,
+    );
   }
 }

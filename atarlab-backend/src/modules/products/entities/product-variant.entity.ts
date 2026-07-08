@@ -8,7 +8,10 @@ export class ProductVariant extends BaseEntity {
   @Column({ name: 'product_id', type: 'uuid' })
   productId: string;
 
-  @ManyToOne(() => Product, (product) => product.variants, { onDelete: 'CASCADE', eager: true })
+  @ManyToOne(() => Product, (product) => product.variants, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
   @JoinColumn({ name: 'product_id' })
   product: Product;
 
@@ -21,7 +24,13 @@ export class ProductVariant extends BaseEntity {
   @Column({ type: 'numeric', precision: 10, scale: 2 })
   price: number;
 
-  @Column({ name: 'compare_at_price', type: 'numeric', precision: 10, scale: 2, nullable: true })
+  @Column({
+    name: 'compare_at_price',
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+  })
   compareAtPrice: number | null;
 
   @Column({ name: 'stock_quantity', type: 'int', default: 0 })

@@ -9,7 +9,12 @@ export class DeliveryAgent extends BaseEntity {
   @Column({ type: 'varchar', length: 20 })
   phone: string;
 
-  @Column({ name: 'vehicle_number', type: 'varchar', length: 20, nullable: true })
+  @Column({
+    name: 'vehicle_number',
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+  })
   vehicleNumber: string | null;
 
   @Column({ name: 'is_active', type: 'boolean', default: true })

@@ -52,13 +52,20 @@ export class CartController {
   }
 
   @Delete('items/:id')
-  removeItem(@Param('id', ParseUUIDPipe) id: string, @CartId() identity: CartIdentity) {
+  removeItem(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CartId() identity: CartIdentity,
+  ) {
     return this.cartService.removeItem(id, identity);
   }
 
   @Post('merge')
-  mergeCart(@CartId() identity: CartIdentity, @Body('sessionId') sessionId: string) {
-    if (!identity.userId) throw new UnauthorizedException('Login is required to merge a cart');
+  mergeCart(
+    @CartId() identity: CartIdentity,
+    @Body('sessionId') sessionId: string,
+  ) {
+    if (!identity.userId)
+      throw new UnauthorizedException('Login is required to merge a cart');
     return this.cartService.mergeGuestCartIntoUser(sessionId, identity.userId);
   }
 

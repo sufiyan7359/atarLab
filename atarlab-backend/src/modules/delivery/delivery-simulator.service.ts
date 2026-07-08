@@ -23,7 +23,12 @@ export class DeliverySimulatorService {
     if (this.active.has(orderId)) return;
 
     const delivery = await this.orderDeliveriesService.getByOrderId(orderId);
-    if (!delivery?.agentId || delivery.destinationLat == null || delivery.destinationLng == null) return;
+    if (
+      !delivery?.agentId ||
+      delivery.destinationLat == null ||
+      delivery.destinationLng == null
+    )
+      return;
 
     const from = { lat: delivery.currentLat!, lng: delivery.currentLng! };
     const to = { lat: delivery.destinationLat, lng: delivery.destinationLng };
@@ -35,7 +40,9 @@ export class DeliverySimulatorService {
       const lat = from.lat + (to.lat - from.lat) * t;
       const lng = from.lng + (to.lng - from.lng) * t;
 
-      this.orderDeliveriesService.updatePosition(orderId, lat, lng).catch((err) => this.logger.error(err));
+      this.orderDeliveriesService
+        .updatePosition(orderId, lat, lng)
+        .catch((err) => this.logger.error(err));
       this.trackingGateway.emitDeliveryPosition(orderId, {
         lat,
         lng,

@@ -2,13 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notification, NotificationType } from './entities/notification.entity';
-import { PaginatedResult, PaginationDto } from '../../common/dto/pagination.dto';
+import {
+  PaginatedResult,
+  PaginationDto,
+} from '../../common/dto/pagination.dto';
 import { TrackingGateway } from '../tracking/tracking.gateway';
 
 @Injectable()
 export class NotificationsService {
   constructor(
-    @InjectRepository(Notification) private readonly repo: Repository<Notification>,
+    @InjectRepository(Notification)
+    private readonly repo: Repository<Notification>,
     private readonly trackingGateway: TrackingGateway,
   ) {}
 
@@ -20,13 +24,22 @@ export class NotificationsService {
     orderId?: string,
   ): Promise<Notification> {
     const notification = await this.repo.save(
-      this.repo.create({ userId, type, title, message, orderId: orderId ?? null }),
+      this.repo.create({
+        userId,
+        type,
+        title,
+        message,
+        orderId: orderId ?? null,
+      }),
     );
     this.trackingGateway.emitNotification(userId, notification);
     return notification;
   }
 
-  async findAllForUser(userId: string, pagination: PaginationDto): Promise<PaginatedResult<Notification>> {
+  async findAllForUser(
+    userId: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<Notification>> {
     const [items, total] = await this.repo.findAndCount({
       where: { userId },
       order: { createdAt: 'DESC' },

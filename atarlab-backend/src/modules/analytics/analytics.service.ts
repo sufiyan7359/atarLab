@@ -35,29 +35,42 @@ const LOW_STOCK_THRESHOLD = 10;
 export class AnalyticsService {
   constructor(
     @InjectRepository(Order) private readonly orderRepo: Repository<Order>,
-    @InjectRepository(OrderItem) private readonly orderItemRepo: Repository<OrderItem>,
+    @InjectRepository(OrderItem)
+    private readonly orderItemRepo: Repository<OrderItem>,
     @InjectRepository(User) private readonly userRepo: Repository<User>,
-    @InjectRepository(ProductVariant) private readonly variantRepo: Repository<ProductVariant>,
+    @InjectRepository(ProductVariant)
+    private readonly variantRepo: Repository<ProductVariant>,
   ) {}
 
   async getSummary(): Promise<DashboardSummary> {
-    const [{ sum }, totalOrders, totalCustomers, pendingOrders, lowStockCount] = await Promise.all([
-      this.orderRepo
-        .createQueryBuilder('order')
-        .select('COALESCE(SUM(order.grandTotal), 0)', 'sum')
-        .where('order.paymentStatus = :status', { status: PaymentStatus.PAID })
-        .getRawOne<{ sum: string }>()
-        .then((r) => ({ sum: Number(r?.sum ?? 0) })),
-      this.orderRepo.count(),
-      this.userRepo.count(),
-      this.orderRepo.count({ where: { status: OrderStatus.PENDING } }),
-      this.variantRepo
-        .createQueryBuilder('variant')
-        .where('variant.stockQuantity <= :threshold', { threshold: LOW_STOCK_THRESHOLD })
-        .getCount(),
-    ]);
+    const [{ sum }, totalOrders, totalCustomers, pendingOrders, lowStockCount] =
+      await Promise.all([
+        this.orderRepo
+          .createQueryBuilder('order')
+          .select('COALESCE(SUM(order.grandTotal), 0)', 'sum')
+          .where('order.paymentStatus = :status', {
+            status: PaymentStatus.PAID,
+          })
+          .getRawOne<{ sum: string }>()
+          .then((r) => ({ sum: Number(r?.sum ?? 0) })),
+        this.orderRepo.count(),
+        this.userRepo.count(),
+        this.orderRepo.count({ where: { status: OrderStatus.PENDING } }),
+        this.variantRepo
+          .createQueryBuilder('variant')
+          .where('variant.stockQuantity <= :threshold', {
+            threshold: LOW_STOCK_THRESHOLD,
+          })
+          .getCount(),
+      ]);
 
-    return { totalRevenue: sum, totalOrders, totalCustomers, pendingOrders, lowStockCount };
+    return {
+      totalRevenue: sum,
+      totalOrders,
+      totalCustomers,
+      pendingOrders,
+      lowStockCount,
+    };
   }
 
   async getRevenueSeries(range: RevenueRange): Promise<RevenuePoint[]> {
@@ -68,7 +81,7 @@ export class AnalyticsService {
       .select(`date_trunc('${truncUnit}', order.placedAt)`, 'bucket')
       .addSelect('COALESCE(SUM(order.grandTotal), 0)', 'revenue')
       .addSelect('COUNT(*)', 'orders')
-      .where('order.placedAt >= NOW() - INTERVAL \'1 day\' * :days', { days })
+      .where("order.placedAt >= NOW() - INTERVAL '1 day' * :days", { days })
       .andWhere('order.paymentStatus = :status', { status: PaymentStatus.PAID })
       .groupBy('bucket')
       .orderBy('bucket', 'ASC')
@@ -92,7 +105,11 @@ export class AnalyticsService {
       .groupBy('item.productNameSnapshot')
       .orderBy('SUM(item.quantity)', 'DESC')
       .limit(limit)
-      .getRawMany<{ productName: string; unitsSold: string; revenue: string }>();
+      .getRawMany<{
+        productName: string;
+        unitsSold: string;
+        revenue: string;
+      }>();
 
     return rows.map((r) => ({
       productName: r.productName,
@@ -101,7 +118,14 @@ export class AnalyticsService {
     }));
   }
 
-  async getTopCustomers(limit = 10): Promise<Array<{ fullName: string; email: string | null; orders: number; totalSpent: number }>> {
+  async getTopCustomers(limit = 10): Promise<
+    Array<{
+      fullName: string;
+      email: string | null;
+      orders: number;
+      totalSpent: number;
+    }>
+  > {
     const rows = await this.orderRepo
       .createQueryBuilder('order')
       .innerJoin('order.user', 'user')
@@ -115,7 +139,12 @@ export class AnalyticsService {
       .addGroupBy('user.email')
       .orderBy('"totalSpent"', 'DESC')
       .limit(limit)
-      .getRawMany<{ fullName: string; email: string | null; orders: string; totalSpent: string }>();
+      .getRawMany<{
+        fullName: string;
+        email: string | null;
+        orders: string;
+        totalSpent: string;
+      }>();
 
     return rows.map((r) => ({
       fullName: r.fullName,
@@ -125,7 +154,10 @@ export class AnalyticsService {
     }));
   }
 
-  async getSalesReport(from: Date, to: Date): Promise<{ orders: number; revenue: number }> {
+  async getSalesReport(
+    from: Date,
+    to: Date,
+  ): Promise<{ orders: number; revenue: number }> {
     const result = await this.orderRepo
       .createQueryBuilder('order')
       .select('COUNT(*)', 'orders')
@@ -134,10 +166,16 @@ export class AnalyticsService {
       .andWhere('order.paymentStatus = :status', { status: PaymentStatus.PAID })
       .getRawOne<{ orders: string; revenue: string }>();
 
-    return { orders: Number(result?.orders ?? 0), revenue: Number(result?.revenue ?? 0) };
+    return {
+      orders: Number(result?.orders ?? 0),
+      revenue: Number(result?.revenue ?? 0),
+    };
   }
 
-  private rangeToTrunc(range: RevenueRange): { truncUnit: string; days: number } {
+  private rangeToTrunc(range: RevenueRange): {
+    truncUnit: string;
+    days: number;
+  } {
     switch (range) {
       case 'year':
         return { truncUnit: 'month', days: 365 };

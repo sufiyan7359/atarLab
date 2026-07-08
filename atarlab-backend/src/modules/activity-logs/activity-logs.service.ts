@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ActivityLog } from './entities/activity-log.entity';
-import { PaginatedResult, PaginationDto } from '../../common/dto/pagination.dto';
+import {
+  PaginatedResult,
+  PaginationDto,
+} from '../../common/dto/pagination.dto';
 
 export interface RecordActivityParams {
   actorUserId: string | null;
@@ -15,7 +18,10 @@ export interface RecordActivityParams {
 
 @Injectable()
 export class ActivityLogsService {
-  constructor(@InjectRepository(ActivityLog) private readonly repo: Repository<ActivityLog>) {}
+  constructor(
+    @InjectRepository(ActivityLog)
+    private readonly repo: Repository<ActivityLog>,
+  ) {}
 
   async record(params: RecordActivityParams): Promise<void> {
     await this.repo.save(

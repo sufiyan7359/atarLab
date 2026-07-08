@@ -6,7 +6,9 @@ import { PaymentProvider, PaymentTxnStatus } from '../../common/enums';
 
 @Injectable()
 export class PaymentsService {
-  constructor(@InjectRepository(Payment) private readonly repo: Repository<Payment>) {}
+  constructor(
+    @InjectRepository(Payment) private readonly repo: Repository<Payment>,
+  ) {}
 
   create(params: {
     orderId: string;
@@ -24,7 +26,10 @@ export class PaymentsService {
   }
 
   findByOrderId(orderId: string): Promise<Payment | null> {
-    return this.repo.findOne({ where: { orderId }, order: { createdAt: 'DESC' } });
+    return this.repo.findOne({
+      where: { orderId },
+      order: { createdAt: 'DESC' },
+    });
   }
 
   findByProviderPaymentId(providerPaymentId: string): Promise<Payment | null> {
