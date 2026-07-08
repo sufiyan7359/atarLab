@@ -36,6 +36,36 @@ export const routes: Routes = [
     loadComponent: () => import('./features/blog/blog-detail.component').then((m) => m.BlogDetailComponent),
   },
   {
+    path: 'faq',
+    loadComponent: () => import('./features/faq/faq-page.component').then((m) => m.FaqPageComponent),
+    title: 'FAQ — AtarLab',
+  },
+  {
+    path: 'contact',
+    loadComponent: () => import('./features/contact/contact-page.component').then((m) => m.ContactPageComponent),
+    title: 'Contact Us — AtarLab',
+  },
+  {
+    path: 'privacy-policy',
+    loadComponent: () => import('./features/legal/privacy-policy.component').then((m) => m.PrivacyPolicyComponent),
+    title: 'Privacy Policy — AtarLab',
+  },
+  {
+    path: 'terms',
+    loadComponent: () => import('./features/legal/terms.component').then((m) => m.TermsComponent),
+    title: 'Terms of Service — AtarLab',
+  },
+  {
+    path: 'refund-policy',
+    loadComponent: () => import('./features/legal/refund-policy.component').then((m) => m.RefundPolicyComponent),
+    title: 'Refund Policy — AtarLab',
+  },
+  {
+    path: 'cookie-policy',
+    loadComponent: () => import('./features/legal/cookie-policy.component').then((m) => m.CookiePolicyComponent),
+    title: 'Cookie Policy — AtarLab',
+  },
+  {
     path: 'cart',
     loadComponent: () => import('./features/cart/cart-page.component').then((m) => m.CartPageComponent),
     title: 'Your Cart — AtarLab',

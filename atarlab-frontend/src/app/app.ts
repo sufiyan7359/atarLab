@@ -4,11 +4,19 @@ import { HeaderComponent } from './shared/layout/header/header.component';
 import { FooterComponent } from './shared/layout/footer/footer.component';
 import { MobileNavComponent } from './shared/layout/mobile-nav/mobile-nav.component';
 import { ToastHostComponent } from './shared/components/toast-host/toast-host.component';
+import { CookieConsentBannerComponent } from './shared/components/cookie-consent/cookie-consent-banner.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, MobileNavComponent, ToastHostComponent],
+  imports: [
+    RouterOutlet,
+    HeaderComponent,
+    FooterComponent,
+    MobileNavComponent,
+    ToastHostComponent,
+    CookieConsentBannerComponent,
+  ],
   template: `
     <app-header />
     <main class="page-shell">
@@ -17,6 +25,7 @@ import { ToastHostComponent } from './shared/components/toast-host/toast-host.co
     <app-footer />
     <app-mobile-nav />
     <app-toast-host />
+    <app-cookie-consent-banner />
   `,
   styles: [
     `
