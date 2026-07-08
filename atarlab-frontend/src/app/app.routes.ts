@@ -169,6 +169,14 @@ export const routes: Routes = [
         title: 'Inventory — AtarLab',
       },
       {
+        path: 'delivery-agents',
+        loadComponent: () =>
+          import('./features/admin/delivery-agents/admin-delivery-agent-list.component').then(
+            (m) => m.AdminDeliveryAgentListComponent,
+          ),
+        title: 'Delivery Agents — AtarLab',
+      },
+      {
         path: 'customers',
         loadComponent: () =>
           import('./features/admin/customers/admin-customer-list.component').then((m) => m.AdminCustomerListComponent),

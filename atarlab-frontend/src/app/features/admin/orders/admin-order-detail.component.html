@@ -43,4 +43,33 @@
       </div>
     </div>
   </div>
+
+  <div class="card-surface" style="margin-bottom: var(--space-6)">
+    <h2 style="font-size:1rem; margin-bottom: var(--space-4);">Delivery</h2>
+    @if (delivery(); as d) {
+      @if (d.agent; as agent) {
+        <p style="margin-bottom: var(--space-4); font-size: 0.9rem;">
+          Assigned to <strong>{{ agent.name }}</strong> ({{ agent.phone }})
+          @if (d.etaMinutes) { · ETA {{ d.etaMinutes }} min }
+          @if (d.deliveredAt) { · Delivered {{ d.deliveredAt | date: 'medium' }} }
+        </p>
+      }
+    }
+    <div class="admin-form">
+      <div class="field">
+        <label>Assign Agent</label>
+        <select [(ngModel)]="selectedAgentId" name="agentId">
+          <option value="">Select an agent…</option>
+          @for (agent of deliveryAgents(); track agent.id) {
+            <option [value]="agent.id">{{ agent.name }} ({{ agent.vehicleNumber ?? 'no vehicle' }})</option>
+          }
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-primary" [disabled]="assigningAgent() || !selectedAgentId" (click)="assignAgent()">
+          {{ assigningAgent() ? 'Assigning…' : 'Assign' }}
+        </button>
+      </div>
+    </div>
+  </div>
 }
