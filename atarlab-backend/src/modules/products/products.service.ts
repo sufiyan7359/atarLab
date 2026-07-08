@@ -113,18 +113,24 @@ export class ProductsService {
     });
     if (!product) throw new NotFoundException('Product not found');
 
-    const related = product.categoryId
-      ? await this.productRepo.find({
-          where: { categoryId: product.categoryId, isActive: true },
-          relations: { images: true, variants: true },
-          take: 8,
-        })
-      : [];
+    // Independent of each other — load-testing findBySlug showed these adding up
+    // sequentially (each product-detail view was paying for both round-trips back to
+    // back); running them concurrently instead cuts that to whichever is slower.
+    const [related, frequentlyBoughtTogether] = await Promise.all([
+      product.categoryId
+        ? this.productRepo.find({
+            where: { categoryId: product.categoryId, isActive: true },
+            relations: { images: true, variants: true },
+            take: 8,
+          })
+        : Promise.resolve([]),
+      this.findFrequentlyBoughtTogether(product),
+    ]);
 
     return {
       ...product,
       related: related.filter((p) => p.id !== product.id).slice(0, 8),
-      frequentlyBoughtTogether: await this.findFrequentlyBoughtTogether(product),
+      frequentlyBoughtTogether,
     };
   }
 

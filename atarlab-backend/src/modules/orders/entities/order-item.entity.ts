@@ -13,6 +13,10 @@ export class OrderItem extends BaseEntity {
   @JoinColumn({ name: 'order_id' })
   order: Order;
 
+  // Postgres doesn't auto-index the referencing side of a FK — added after load-testing
+  // showed the frequently-bought-together query (which joins order_items on variant_id)
+  // running measurably slower than a comparable query without this join.
+  @Index()
   @Column({ name: 'variant_id', type: 'uuid' })
   variantId: string;
 

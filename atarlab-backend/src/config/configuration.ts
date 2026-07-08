@@ -14,6 +14,7 @@ export interface AppConfig {
     password: string;
     name: string;
     ssl: boolean;
+    poolSize: number;
   };
   redis: { host: string; port: number };
   jwt: {
@@ -43,6 +44,10 @@ export default (): { app: AppConfig } => ({
       password: process.env.DB_PASSWORD ?? '',
       name: process.env.DB_NAME ?? 'atarlab',
       ssl: process.env.DB_SSL === 'true',
+      // node-postgres defaults to 10 — load-testing showed 20 concurrent requests
+      // saturating that pool (queuing for a free connection, not slow queries) well
+      // before the DB or app CPU were under any real pressure. Tunable per-environment.
+      poolSize: parseInt(process.env.DB_POOL_SIZE ?? '20', 10),
     },
     redis: {
       host: process.env.REDIS_HOST ?? 'localhost',

@@ -16,5 +16,6 @@ export const buildTypeOrmOptions = (configService: ConfigService): TypeOrmModule
     synchronize: false,
     logging: app.env === 'local' ? ['error', 'warn'] : ['error'],
     migrationsRun: false,
+    extra: { max: app.database.poolSize },
   };
 };

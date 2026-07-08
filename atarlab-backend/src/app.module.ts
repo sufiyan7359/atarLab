@@ -44,7 +44,11 @@ import { ContentModule } from './modules/content/content.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [configuration], validationSchema }),
-    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
+    // Global default for everything not explicitly overridden (auth endpoints get tighter
+    // per-route limits — see AuthController). 100/min turned out too tight for legitimate
+    // catalog browsing once instant-search-suggestions started firing per debounced
+    // keystroke (Phase 4) — a single active user's normal browsing could trip it.
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 300 }]),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: buildTypeOrmOptions,
