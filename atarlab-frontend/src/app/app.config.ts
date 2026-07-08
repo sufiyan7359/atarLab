@@ -1,6 +1,7 @@
 import {
   ApplicationConfig,
   inject,
+  isDevMode,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
@@ -8,6 +9,7 @@ import {
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { provideServiceWorker } from '@angular/service-worker';
 
 import { routes } from './app.routes';
 import { apiBaseUrlInterceptor } from './core/interceptors/api-base-url.interceptor';
@@ -24,5 +26,9 @@ export const appConfig: ApplicationConfig = {
     // Restores the session before the router's initial navigation runs, so route guards
     // never race the silent-refresh call (see AuthBootstrapService for why that matters).
     provideAppInitializer(() => inject(AuthBootstrapService).initialize()),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ],
 };
