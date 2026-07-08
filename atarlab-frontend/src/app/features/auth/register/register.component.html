@@ -1,0 +1,31 @@
+<div class="auth-page">
+  <h1>Create Your Account</h1>
+  <p class="auth-subtitle">Join AtarLab for a personalized fragrance journey</p>
+
+  <form (submit)="$event.preventDefault(); submit()">
+    @if (error()) {
+      <p class="form-error">{{ error() }}</p>
+    }
+
+    <div class="field">
+      <label for="fullName">Full Name</label>
+      <input id="fullName" type="text" required [ngModel]="fullName()" (ngModelChange)="fullName.set($event)" name="fullName" />
+    </div>
+
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" type="email" required [ngModel]="email()" (ngModelChange)="email.set($event)" name="email" />
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <input id="password" type="password" required minlength="8" [ngModel]="password()" (ngModelChange)="password.set($event)" name="password" />
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block" [disabled]="submitting()">
+      {{ submitting() ? 'Creating account…' : 'Create Account' }}
+    </button>
+  </form>
+
+  <p class="auth-footer">Already have an account? <a routerLink="/auth/login">Sign in</a></p>
+</div>

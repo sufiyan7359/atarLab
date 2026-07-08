@@ -1,0 +1,58 @@
+@if (loading()) {
+  <p>Loading order…</p>
+} @else if (order(); as o) {
+  <div class="order-detail">
+    <a routerLink="/account/orders" class="back-link">← Back to Orders</a>
+
+    <div class="header-row">
+      <div>
+        <h1>Order {{ o.orderNumber }}</h1>
+        <p>Placed on {{ o.placedAt | date: 'mediumDate' }}</p>
+      </div>
+      <span class="status-badge" [class]="o.status.toLowerCase()">{{ o.status.replace('_', ' ') }}</span>
+    </div>
+
+    @if (o.status !== 'CANCELLED' && o.status !== 'DELIVERED' && o.status !== 'RETURNED') {
+      <div class="card-surface">
+        <h3>Order Tracking</h3>
+        <ul class="timeline">
+          @for (step of statusSteps; track step) {
+            <li [class.reached]="statusSteps.indexOf(o.status) >= statusSteps.indexOf(step)">
+              {{ step.replace('_', ' ') }}
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    <div class="card-surface">
+      <h3>Items</h3>
+      @for (item of o.items; track item.id) {
+        <div class="item-row">
+          <span>{{ item.productNameSnapshot }} ({{ item.variantSnapshot }}) × {{ item.quantity }}</span>
+          <span>{{ item.lineTotal | inr }}</span>
+        </div>
+      }
+      <dl>
+        <div class="row"><dt>Subtotal</dt><dd>{{ o.subtotal | inr }}</dd></div>
+        @if (+o.discountTotal > 0) {
+          <div class="row"><dt>Discount</dt><dd>-{{ o.discountTotal | inr }}</dd></div>
+        }
+        <div class="row"><dt>Shipping</dt><dd>{{ o.shippingFee | inr }}</dd></div>
+        <div class="row"><dt>Tax</dt><dd>{{ o.taxTotal | inr }}</dd></div>
+        <div class="row total"><dt>Total</dt><dd>{{ o.grandTotal | inr }}</dd></div>
+      </dl>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn-ghost" [disabled]="downloadingInvoice()" (click)="downloadInvoice()">
+        {{ downloadingInvoice() ? 'Preparing…' : 'Download Invoice' }}
+      </button>
+      @if (canCancel()) {
+        <button type="button" class="btn btn-danger" [disabled]="cancelling()" (click)="cancelOrder()">
+          {{ cancelling() ? 'Cancelling…' : 'Cancel Order' }}
+        </button>
+      }
+    </div>
+  </div>
+}

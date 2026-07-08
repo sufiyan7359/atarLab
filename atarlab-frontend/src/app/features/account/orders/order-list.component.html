@@ -1,0 +1,21 @@
+<h1>Your Orders</h1>
+
+@if (loading()) {
+  <p>Loading orders…</p>
+} @else if (orders().length === 0) {
+  <div class="empty-state">
+    <p>You haven't placed any orders yet.</p>
+    <a routerLink="/shop" class="btn btn-primary">Start Shopping</a>
+  </div>
+} @else {
+  @for (order of orders(); track order.id) {
+    <a class="order-row" [routerLink]="['/account/orders', order.id]">
+      <div class="meta">
+        <strong>{{ order.orderNumber }}</strong>
+        <small>{{ order.placedAt | date: 'mediumDate' }} • {{ order.items.length }} item(s)</small>
+      </div>
+      <span class="status-badge" [class]="order.status.toLowerCase()">{{ order.status.replace('_', ' ') }}</span>
+      <strong>{{ order.grandTotal | inr }}</strong>
+    </a>
+  }
+}

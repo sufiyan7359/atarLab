@@ -1,0 +1,46 @@
+<h1>Account Settings</h1>
+
+<div class="card-surface" style="margin-bottom: var(--space-6)">
+  <h3>Profile</h3>
+  <form (submit)="$event.preventDefault(); saveProfile()">
+    <div class="field">
+      <label>Email</label>
+      <input type="email" [value]="authStore.user()?.email" disabled />
+    </div>
+    <div class="field">
+      <label>Full Name</label>
+      <input type="text" [ngModel]="fullName()" (ngModelChange)="fullName.set($event)" name="fullName" />
+    </div>
+    <button type="submit" class="btn btn-primary" [disabled]="savingProfile()">
+      {{ savingProfile() ? 'Saving…' : 'Save Changes' }}
+    </button>
+  </form>
+</div>
+
+<div class="card-surface">
+  <h3>Change Password</h3>
+  <form (submit)="$event.preventDefault(); changePassword()">
+    <div class="field">
+      <label>Current Password</label>
+      <input
+        type="password"
+        [ngModel]="currentPassword()"
+        (ngModelChange)="currentPassword.set($event)"
+        name="currentPassword"
+      />
+    </div>
+    <div class="field">
+      <label>New Password</label>
+      <input
+        type="password"
+        minlength="8"
+        [ngModel]="newPassword()"
+        (ngModelChange)="newPassword.set($event)"
+        name="newPassword"
+      />
+    </div>
+    <button type="submit" class="btn btn-primary" [disabled]="savingPassword()">
+      {{ savingPassword() ? 'Updating…' : 'Update Password' }}
+    </button>
+  </form>
+</div>

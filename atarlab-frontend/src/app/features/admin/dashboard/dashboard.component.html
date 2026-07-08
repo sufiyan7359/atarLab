@@ -1,0 +1,66 @@
+<div class="page-head">
+  <h1>Dashboard</h1>
+</div>
+
+@if (summary(); as s) {
+  <div class="stat-grid">
+    <div class="stat-tile">
+      <p class="label">Total Revenue</p>
+      <p class="value">{{ s.totalRevenue | inr }}</p>
+    </div>
+    <div class="stat-tile">
+      <p class="label">Total Orders</p>
+      <p class="value">{{ s.totalOrders }}</p>
+    </div>
+    <div class="stat-tile">
+      <p class="label">Customers</p>
+      <p class="value">{{ s.totalCustomers }}</p>
+    </div>
+    <div class="stat-tile">
+      <p class="label">Pending Orders</p>
+      <p class="value">{{ s.pendingOrders }}</p>
+    </div>
+    <div class="stat-tile">
+      <p class="label">Low Stock Items</p>
+      <p class="value">{{ s.lowStockCount }}</p>
+    </div>
+  </div>
+}
+
+<div class="card-surface" style="margin-bottom: var(--space-8)">
+  <div class="page-head" style="margin-bottom: var(--space-4)">
+    <h2 style="margin:0; font-size: 1.05rem;">Revenue</h2>
+    <div class="range-toggle">
+      <button type="button" [class.active]="range() === 'week'" (click)="setRange('week')">7 Days</button>
+      <button type="button" [class.active]="range() === 'month'" (click)="setRange('month')">30 Days</button>
+      <button type="button" [class.active]="range() === 'year'" (click)="setRange('year')">12 Months</button>
+    </div>
+  </div>
+  <app-revenue-chart [points]="revenue()" />
+</div>
+
+<div class="card-surface">
+  <h2 style="margin-bottom: var(--space-4); font-size: 1.05rem;">Top Selling Products</h2>
+  <div class="table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Units Sold</th>
+          <th>Revenue</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of topProducts(); track row.productName) {
+          <tr>
+            <td>{{ row.productName }}</td>
+            <td>{{ row.unitsSold }}</td>
+            <td>{{ row.revenue | inr }}</td>
+          </tr>
+        } @empty {
+          <tr><td colspan="3">No sales yet.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

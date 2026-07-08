@@ -1,0 +1,120 @@
+.cart-page {
+  padding: var(--space-8) 0 var(--space-16);
+}
+
+.cart-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
+  align-items: start;
+  @media (min-width: 900px) {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.cart-item {
+  display: grid;
+  grid-template-columns: 72px 1fr auto auto;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.cart-item img {
+  width: 72px;
+  height: 88px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+.item-info a {
+  font-weight: 600;
+  font-family: var(--font-display);
+}
+.variant-label {
+  font-size: 0.8rem;
+  margin: 2px 0;
+}
+.price {
+  font-weight: 600;
+  margin: 0;
+}
+.remove-btn {
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.summary h2 {
+  margin-bottom: var(--space-4);
+}
+
+.coupon-row {
+  margin-bottom: var(--space-4);
+}
+.coupon-input {
+  display: flex;
+  gap: 8px;
+}
+.coupon-input input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-primary);
+}
+.coupon-applied {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-muted);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+.coupon-applied button {
+  border: none;
+  background: none;
+  color: var(--danger);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+dl {
+  margin: 0 0 var(--space-4);
+}
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 0.9rem;
+}
+.row dt,
+.row dd {
+  margin: 0;
+}
+.row.discount dd {
+  color: var(--success);
+}
+.row.total {
+  border-top: 1px solid var(--border);
+  margin-top: 6px;
+  padding-top: 12px;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.hint {
+  font-size: 0.78rem;
+  text-align: center;
+  margin-top: var(--space-3);
+}

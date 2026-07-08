@@ -1,0 +1,45 @@
+<div class="page-head">
+  <h1>Inventory</h1>
+  <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem;">
+    <input type="checkbox" [checked]="lowStockOnly()" (change)="toggleLowStock()" />
+    Low stock only
+  </label>
+</div>
+
+@if (loading()) {
+  <p>Loading inventory…</p>
+} @else {
+  <div class="table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr><th>Product</th><th>SKU</th><th>Size</th><th>Stock</th><th>Adjust</th></tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.id) {
+          <tr>
+            <td>{{ row.product?.name ?? '—' }}</td>
+            <td>{{ row.sku }}</td>
+            <td>{{ row.sizeMl }}ml</td>
+            <td>
+              <span class="badge-pill" [class.off]="row.isLowStock" [class.on]="!row.isLowStock">
+                {{ row.stockQuantity }}
+              </span>
+            </td>
+            <td class="actions">
+              <input
+                type="number"
+                min="1"
+                style="width: 60px; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-elevated); color: var(--text-primary);"
+                [(ngModel)]="adjustments[row.id]"
+                [name]="'adj' + row.id"
+                placeholder="1"
+              />
+              <button type="button" class="link-btn" (click)="adjust(row.id, 1)">+ Add</button>
+              <button type="button" class="link-btn danger" (click)="adjust(row.id, -1)">− Remove</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

@@ -1,0 +1,56 @@
+<h1>Your Addresses</h1>
+
+@for (address of addresses(); track address.id) {
+  <div class="card-surface address-card">
+    <div>
+      <strong>{{ address.label }}</strong> @if (address.isDefault) { <span class="default-tag">Default</span> }
+      <p>{{ address.fullName }} — {{ address.phone }}</p>
+      <p>{{ address.line1 }}, {{ address.city }}, {{ address.state }} {{ address.postalCode }}</p>
+    </div>
+    <div class="actions">
+      @if (!address.isDefault) {
+        <button type="button" class="btn btn-ghost" (click)="setDefault(address.id)">Set as Default</button>
+      }
+      <button type="button" class="btn btn-danger" (click)="remove(address.id)">Remove</button>
+    </div>
+  </div>
+}
+
+@if (!showForm()) {
+  <button type="button" class="btn btn-primary" (click)="showForm.set(true)">+ Add New Address</button>
+} @else {
+  <form class="card-surface address-form" (submit)="$event.preventDefault(); save()">
+    <div class="field">
+      <label>Label</label>
+      <input type="text" [(ngModel)]="form.label" name="label" />
+    </div>
+    <div class="field">
+      <label>Full Name</label>
+      <input type="text" required [(ngModel)]="form.fullName" name="fullName" />
+    </div>
+    <div class="field">
+      <label>Phone</label>
+      <input type="tel" required [(ngModel)]="form.phone" name="phone" />
+    </div>
+    <div class="field">
+      <label>Address Line 1</label>
+      <input type="text" required [(ngModel)]="form.line1" name="line1" />
+    </div>
+    <div class="field">
+      <label>City</label>
+      <input type="text" required [(ngModel)]="form.city" name="city" />
+    </div>
+    <div class="field">
+      <label>State</label>
+      <input type="text" required [(ngModel)]="form.state" name="state" />
+    </div>
+    <div class="field">
+      <label>Postal Code</label>
+      <input type="text" required [(ngModel)]="form.postalCode" name="postalCode" />
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">Save Address</button>
+      <button type="button" class="btn btn-ghost" (click)="showForm.set(false)">Cancel</button>
+    </div>
+  </form>
+}

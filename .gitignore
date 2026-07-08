@@ -1,0 +1,21 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+
+# Root-level safety net (each sub-project also has its own .gitignore)
+node_modules/
+dist/
+.env
+.env.local
+*.log
+
+# Local tooling
+.claude/

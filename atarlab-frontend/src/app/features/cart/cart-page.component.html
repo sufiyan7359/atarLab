@@ -1,0 +1,72 @@
+<div class="container cart-page">
+  <h1>Your Cart</h1>
+
+  @if (cartStore.loading()) {
+    <p>Loading your cart…</p>
+  } @else if (!cartStore.summary() || cartStore.summary()!.cart.items.length === 0) {
+    <div class="empty-state">
+      <p>Your cart is empty.</p>
+      <a routerLink="/shop" class="btn btn-primary">Continue Shopping</a>
+    </div>
+  } @else {
+    <div class="cart-layout">
+      <div class="items">
+        @for (item of cartStore.summary()!.cart.items; track item.id) {
+          <div class="cart-item">
+            @if (item.variant.product?.images?.[0]?.url) {
+              <img [src]="item.variant.product?.images?.[0]?.url" [alt]="item.variant.product?.name" />
+            }
+            <div class="item-info">
+              <a [routerLink]="['/product', item.variant.product?.slug]">{{ item.variant.product?.name }}</a>
+              <p class="variant-label">{{ item.variant.sizeMl }}ml</p>
+              <p class="price">{{ item.variant.price | inr }}</p>
+            </div>
+            <app-quantity-stepper [value]="item.quantity" (changed)="updateQuantity(item.id, $event)" />
+            <button type="button" class="remove-btn" (click)="removeItem(item.id)" aria-label="Remove item">✕</button>
+          </div>
+        }
+      </div>
+
+      <aside class="summary card-surface">
+        <h2>Order Summary</h2>
+
+        <div class="coupon-row">
+          @if (cartStore.summary()!.cart.couponCode) {
+            <div class="coupon-applied">
+              <span>Coupon: <strong>{{ cartStore.summary()!.cart.couponCode }}</strong></span>
+              <button type="button" (click)="removeCoupon()">Remove</button>
+            </div>
+          } @else {
+            <div class="coupon-input">
+              <input
+                type="text"
+                placeholder="Coupon code"
+                [ngModel]="couponCode()"
+                (ngModelChange)="couponCode.set($event)"
+              />
+              <button type="button" class="btn btn-ghost" [disabled]="applyingCoupon()" (click)="applyCoupon()">
+                Apply
+              </button>
+            </div>
+          }
+        </div>
+
+        <dl>
+          <div class="row"><dt>Subtotal</dt><dd>{{ cartStore.summary()!.subtotal | inr }}</dd></div>
+          @if (cartStore.summary()!.discount > 0) {
+            <div class="row discount"><dt>Discount</dt><dd>-{{ cartStore.summary()!.discount | inr }}</dd></div>
+          }
+          <div class="row">
+            <dt>Shipping</dt>
+            <dd>{{ cartStore.summary()!.shippingFee === 0 ? 'Free' : (cartStore.summary()!.shippingFee | inr) }}</dd>
+          </div>
+          <div class="row"><dt>Tax</dt><dd>{{ cartStore.summary()!.taxTotal | inr }}</dd></div>
+          <div class="row total"><dt>Total</dt><dd>{{ cartStore.summary()!.grandTotal | inr }}</dd></div>
+        </dl>
+
+        <button type="button" class="btn btn-primary btn-block" (click)="goToCheckout()">Proceed to Checkout</button>
+        <p class="hint">Free shipping on orders above ₹999.</p>
+      </aside>
+    </div>
+  }
+</div>

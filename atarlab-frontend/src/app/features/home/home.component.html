@@ -1,0 +1,117 @@
+<section class="hero">
+  <div class="container hero-inner">
+    <p class="eyebrow">The Art of Fragrance</p>
+    <h1>Discover Your Signature Scent</h1>
+    <p class="lead">
+      Pure attars, rare oud, and eau de parfum — hand-blended in small batches for a fragrance that lingers long
+      after you've left the room.
+    </p>
+    <div class="hero-actions">
+      <a routerLink="/shop" class="btn btn-primary">Shop the Collection</a>
+      <a routerLink="/shop" [queryParams]="{ category: 'oud-collection' }" class="btn btn-ghost">Explore Oud</a>
+    </div>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-head">
+    <h2>Shop by Collection</h2>
+  </div>
+  <div class="category-grid">
+    @for (category of categories(); track category.id) {
+      <a
+        class="category-card"
+        routerLink="/shop"
+        [queryParams]="{ category: category.slug }"
+        [style.backgroundImage]="'url(' + (category.imageUrl ?? '') + ')'"
+      >
+        <span>{{ category.name }}</span>
+      </a>
+    }
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-head">
+    <h2>Best Sellers</h2>
+    <a routerLink="/shop" [queryParams]="{ sort: 'bestseller' }">View all →</a>
+  </div>
+  <div class="product-grid">
+    @for (product of bestSellers(); track product.id) {
+      <app-product-card [product]="product" />
+    }
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-head">
+    <h2>Featured Fragrances</h2>
+    <a routerLink="/shop">View all →</a>
+  </div>
+  <div class="product-grid">
+    @for (product of featured(); track product.id) {
+      <app-product-card [product]="product" />
+    }
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-head">
+    <h2>New Arrivals</h2>
+    <a routerLink="/shop" [queryParams]="{ sort: 'newest' }">View all →</a>
+  </div>
+  <div class="product-grid">
+    @for (product of newArrivals(); track product.id) {
+      <app-product-card [product]="product" />
+    }
+  </div>
+</section>
+
+<section class="container section testimonials">
+  <div class="section-head">
+    <h2>Loved by Our Customers</h2>
+  </div>
+  <div class="testimonial-grid">
+    <blockquote>
+      <p>"The Royal Oud Musk attar lasted the entire day. Genuinely the best fragrance I've bought online."</p>
+      <cite>— Aisha R.</cite>
+    </blockquote>
+    <blockquote>
+      <p>"Packaging felt premium, and the scent is exactly as described. Will be reordering the Saffron Rose."</p>
+      <cite>— Karan M.</cite>
+    </blockquote>
+    <blockquote>
+      <p>"Finally an attar brand that doesn't feel synthetic. The oud collection is exceptional."</p>
+      <cite>— Fatima S.</cite>
+    </blockquote>
+  </div>
+</section>
+
+<section class="container section faq">
+  <div class="section-head">
+    <h2>Frequently Asked Questions</h2>
+  </div>
+  <details>
+    <summary>How long does an attar's fragrance last?</summary>
+    <p>Our pure attars are formulated for very long longevity — most last 8–12 hours on skin.</p>
+  </details>
+  <details>
+    <summary>Do you offer Cash on Delivery?</summary>
+    <p>Yes — COD is available at checkout alongside Razorpay for cards, UPI, and wallets.</p>
+  </details>
+  <details>
+    <summary>What is your return policy?</summary>
+    <p>Unopened items can be returned within 7 days of delivery for a full refund.</p>
+  </details>
+</section>
+
+<section class="newsletter-banner">
+  <div class="container">
+    <h2>Join the AtarLab Circle</h2>
+    <p>Be first to know about new arrivals, limited drops, and member-only offers.</p>
+    <form class="newsletter-form">
+      <input type="email" placeholder="Enter your email" />
+      <button type="submit" class="btn btn-primary">Subscribe</button>
+    </form>
+  </div>
+</section>

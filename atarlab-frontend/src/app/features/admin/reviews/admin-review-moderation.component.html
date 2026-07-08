@@ -1,0 +1,24 @@
+<div class="page-head">
+  <h1>Review Moderation</h1>
+</div>
+
+@if (loading()) {
+  <p>Loading pending reviews…</p>
+} @else if (reviews().length === 0) {
+  <p>No reviews awaiting moderation.</p>
+} @else {
+  @for (review of reviews(); track review.id) {
+    <div class="card-surface" style="margin-bottom: var(--space-4);">
+      <app-rating-stars [rating]="review.rating" [showCount]="false" />
+      @if (review.title) {
+        <p style="font-weight:700; margin: 6px 0 2px;">{{ review.title }}</p>
+      }
+      <p style="margin: 0 0 6px;">{{ review.comment }}</p>
+      <small style="color: var(--text-secondary);">by {{ review.user.fullName }}</small>
+      <div class="actions" style="margin-top: var(--space-3);">
+        <button type="button" class="btn btn-primary" (click)="approve(review.id)">Approve</button>
+        <button type="button" class="btn btn-danger" (click)="reject(review.id)">Reject</button>
+      </div>
+    </div>
+  }
+}

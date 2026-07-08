@@ -1,0 +1,32 @@
+<div class="container wishlist-page">
+  <h1>Your Wishlist</h1>
+
+  @if (loading()) {
+    <p>Loading…</p>
+  } @else if (items().length === 0) {
+    <div class="empty-state">
+      <p>Your wishlist is empty.</p>
+      <a routerLink="/shop" class="btn btn-primary">Browse Fragrances</a>
+    </div>
+  } @else {
+    <div class="wishlist-grid">
+      @for (item of items(); track item.id) {
+        <div class="wishlist-card card-surface">
+          @if (item.product.images[0]?.url) {
+            <a [routerLink]="['/product', item.product.slug]">
+              <img [src]="item.product.images[0].url" [alt]="item.product.name" />
+            </a>
+          }
+          <div class="info">
+            <a [routerLink]="['/product', item.product.slug]" class="name">{{ item.product.name }}</a>
+            <p class="price">{{ (item.variant?.price ?? item.product.basePrice) | inr }}</p>
+            <div class="actions">
+              <button type="button" class="btn btn-primary" (click)="moveToCart(item.id)">Move to Cart</button>
+              <button type="button" class="btn btn-ghost" (click)="remove(item.id)">Remove</button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,157 @@
+<div class="page-head">
+  <h1>{{ productId() ? 'Edit Product' : 'New Product' }}</h1>
+  <a routerLink="/admin/products" class="btn btn-ghost">← Back to Products</a>
+</div>
+
+<form (submit)="$event.preventDefault(); save()" class="product-form">
+  <section class="card-surface">
+    <h2>Basic Info</h2>
+    <div class="grid-2">
+      <div class="field">
+        <label>Name</label>
+        <input type="text" required [(ngModel)]="form.name" name="name" />
+      </div>
+      <div class="field">
+        <label>Slug</label>
+        <input type="text" required [(ngModel)]="form.slug" name="slug" />
+      </div>
+      <div class="field">
+        <label>Brand</label>
+        <select [(ngModel)]="form.brandId" name="brandId">
+          <option [ngValue]="undefined">— None —</option>
+          @for (b of brands(); track b.id) {
+            <option [ngValue]="b.id">{{ b.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <select [(ngModel)]="form.categoryId" name="categoryId">
+          <option [ngValue]="undefined">— None —</option>
+          @for (c of categories(); track c.id) {
+            <option [ngValue]="c.id">{{ c.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label>Base Price (₹)</label>
+        <input type="number" required min="0" [(ngModel)]="form.basePrice" name="basePrice" />
+      </div>
+      <div class="field">
+        <label>Gender</label>
+        <select [(ngModel)]="form.gender" name="gender">
+          <option value="UNISEX">Unisex</option>
+          <option value="MALE">Male</option>
+          <option value="FEMALE">Female</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Concentration</label>
+        <select [(ngModel)]="form.concentration" name="concentration">
+          <option [ngValue]="undefined">—</option>
+          <option value="ATTAR">Attar</option>
+          <option value="EDP">EDP</option>
+          <option value="EDT">EDT</option>
+          <option value="OIL">Oil</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Longevity</label>
+        <input type="text" [(ngModel)]="form.longevity" name="longevity" placeholder="e.g. LONG" />
+      </div>
+      <div class="field">
+        <label>Projection</label>
+        <input type="text" [(ngModel)]="form.projection" name="projection" placeholder="e.g. MODERATE" />
+      </div>
+      <div class="field">
+        <label>Season (comma separated)</label>
+        <input type="text" [(ngModel)]="seasonText" name="season" placeholder="SUMMER, WINTER" />
+      </div>
+      <div class="field">
+        <label>Occasion (comma separated)</label>
+        <input type="text" [(ngModel)]="occasionText" name="occasion" placeholder="DAILY, PARTY" />
+      </div>
+      <div class="field checkbox-field">
+        <label><input type="checkbox" [(ngModel)]="form.isFeatured" name="isFeatured" /> Featured</label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Short Description</label>
+      <input type="text" [(ngModel)]="form.shortDescription" name="shortDescription" />
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea rows="4" [(ngModel)]="form.description" name="description"></textarea>
+    </div>
+  </section>
+
+  <section class="card-surface">
+    <h2>Variants</h2>
+    @for (variant of variants; track $index) {
+      <div class="row-grid variant-row">
+        <input type="text" placeholder="SKU" [(ngModel)]="variant.sku" [name]="'sku' + $index" />
+        <input type="number" placeholder="Size (ml)" [(ngModel)]="variant.sizeMl" [name]="'sizeMl' + $index" />
+        <input type="number" placeholder="Price" [(ngModel)]="variant.price" [name]="'price' + $index" />
+        <input
+          type="number"
+          placeholder="Compare-at price"
+          [(ngModel)]="variant.compareAtPrice"
+          [name]="'compareAtPrice' + $index"
+        />
+        <input type="number" placeholder="Stock" [(ngModel)]="variant.stockQuantity" [name]="'stock' + $index" />
+        <button type="button" class="link-btn danger" (click)="removeVariant($index)">Remove</button>
+      </div>
+    }
+    <button type="button" class="btn btn-ghost" (click)="addVariant()">+ Add Variant</button>
+  </section>
+
+  <section class="card-surface">
+    <h2>Fragrance Notes</h2>
+    @for (note of fragranceNotes; track $index) {
+      <div class="row-grid note-row">
+        <select [(ngModel)]="note.noteType" [name]="'noteType' + $index">
+          <option value="TOP">Top</option>
+          <option value="MIDDLE">Middle</option>
+          <option value="BASE">Base</option>
+        </select>
+        <input type="text" placeholder="Note name" [(ngModel)]="note.name" [name]="'noteName' + $index" />
+        <button type="button" class="link-btn danger" (click)="removeNote($index)">Remove</button>
+      </div>
+    }
+    <button type="button" class="btn btn-ghost" (click)="addNote()">+ Add Note</button>
+  </section>
+
+  <section class="card-surface">
+    <h2>Ingredients</h2>
+    @for (ingredient of ingredients; track $index) {
+      <div class="row-grid ingredient-row">
+        <input type="text" [(ngModel)]="ingredients[$index]" [name]="'ingredient' + $index" />
+        <button type="button" class="link-btn danger" (click)="removeIngredient($index)">Remove</button>
+      </div>
+    }
+    <button type="button" class="btn btn-ghost" (click)="addIngredient()">+ Add Ingredient</button>
+  </section>
+
+  <section class="card-surface">
+    <h2>Images</h2>
+    <div class="image-grid">
+      @for (image of images; track $index) {
+        <div class="image-tile">
+          <img [src]="image.url" [alt]="image.altText" />
+          <button type="button" class="link-btn danger" (click)="removeImage($index)">Remove</button>
+        </div>
+      }
+    </div>
+    <label class="btn btn-ghost upload-btn">
+      {{ uploading() ? 'Uploading…' : '+ Upload Image' }}
+      <input type="file" accept="image/*" (change)="onFileSelected($event)" [disabled]="uploading()" hidden />
+    </label>
+  </section>
+
+  <div class="form-actions sticky-actions">
+    <button type="submit" class="btn btn-primary" [disabled]="saving()">
+      {{ saving() ? 'Saving…' : 'Save Product' }}
+    </button>
+    <a routerLink="/admin/products" class="btn btn-ghost">Cancel</a>
+  </div>
+</form>

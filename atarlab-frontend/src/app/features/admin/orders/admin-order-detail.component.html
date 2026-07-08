@@ -1,0 +1,46 @@
+@if (loading()) {
+  <p>Loading order…</p>
+} @else if (order(); as o) {
+  <a routerLink="/admin/orders" class="link-btn" style="display:inline-block; margin-bottom: var(--space-4);">← Back to Orders</a>
+
+  <div class="page-head">
+    <div>
+      <h1>Order {{ o.orderNumber }}</h1>
+      <small style="color: var(--text-secondary);">Placed {{ o.placedAt | date: 'medium' }}</small>
+    </div>
+    <span class="badge-pill on">{{ o.status.replace('_', ' ') }}</span>
+  </div>
+
+  <div class="card-surface" style="margin-bottom: var(--space-6)">
+    <h2 style="font-size:1rem; margin-bottom: var(--space-4);">Items</h2>
+    @for (item of o.items; track item.id) {
+      <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border); font-size:0.9rem;">
+        <span>{{ item.productNameSnapshot }} ({{ item.variantSnapshot }}) × {{ item.quantity }}</span>
+        <span>{{ item.lineTotal | inr }}</span>
+      </div>
+    }
+    <p style="margin-top: var(--space-4); font-weight: 700;">Total: {{ o.grandTotal | inr }} • Payment: {{ o.paymentStatus }}</p>
+  </div>
+
+  <div class="card-surface" style="margin-bottom: var(--space-6)">
+    <h2 style="font-size:1rem; margin-bottom: var(--space-4);">Update Status</h2>
+    <div class="admin-form">
+      <div class="field">
+        <label>New Status</label>
+        <select [(ngModel)]="selectedStatus" name="status">
+          @for (s of statusOptions; track s) {
+            <option [value]="s">{{ s.replace('_', ' ') }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label>Note (optional)</label>
+        <input type="text" [(ngModel)]="statusNote" name="note" />
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-primary" [disabled]="updating()" (click)="updateStatus()">Update Status</button>
+        <button type="button" class="btn btn-danger" [disabled]="updating()" (click)="refund()">Cancel & Refund</button>
+      </div>
+    </div>
+  </div>
+}

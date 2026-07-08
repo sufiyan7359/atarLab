@@ -1,0 +1,81 @@
+.product-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 900px;
+}
+.product-form section h2 {
+  font-size: 1rem;
+  margin-bottom: var(--space-4);
+}
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 var(--space-4);
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+.checkbox-field {
+  display: flex;
+  align-items: center;
+}
+.checkbox-field label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.row-grid {
+  display: grid;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.variant-row {
+  grid-template-columns: 1.3fr 0.8fr 0.8fr 1fr 0.8fr auto;
+}
+.note-row {
+  grid-template-columns: 120px 1fr auto;
+}
+.ingredient-row {
+  grid-template-columns: 1fr auto;
+}
+.row-grid input,
+.row-grid select {
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.image-tile {
+  width: 100px;
+  text-align: center;
+}
+.image-tile img {
+  width: 100px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+}
+.upload-btn {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.sticky-actions {
+  position: sticky;
+  bottom: 0;
+  background: var(--bg-muted);
+  padding: var(--space-4) 0;
+}

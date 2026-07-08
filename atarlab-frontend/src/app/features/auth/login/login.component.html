@@ -1,0 +1,31 @@
+<div class="auth-page">
+  <h1>Welcome Back</h1>
+  <p class="auth-subtitle">Sign in to continue to AtarLab</p>
+
+  <form (submit)="$event.preventDefault(); submit()">
+    @if (error()) {
+      <p class="form-error">{{ error() }}</p>
+    }
+
+    <div class="field">
+      <label for="identifier">Email or Phone</label>
+      <input id="identifier" type="text" required [ngModel]="identifier()" (ngModelChange)="identifier.set($event)" name="identifier" />
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <input id="password" type="password" required [ngModel]="password()" (ngModelChange)="password.set($event)" name="password" />
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block" [disabled]="submitting()">
+      {{ submitting() ? 'Signing in…' : 'Sign In' }}
+    </button>
+  </form>
+
+  <p class="auth-footer">
+    <a routerLink="/auth/forgot-password">Forgot your password?</a>
+  </p>
+  <p class="auth-footer">
+    Don't have an account? <a routerLink="/auth/register">Create one</a>
+  </p>
+</div>

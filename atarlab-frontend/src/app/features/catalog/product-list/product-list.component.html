@@ -1,0 +1,93 @@
+<div class="container shop-layout">
+  <aside class="filters">
+    <h3>Category</h3>
+    <ul>
+      <li>
+        <button type="button" (click)="updateFilter('category', '')" [class.active]="!query.category">All</button>
+      </li>
+      @for (category of categories(); track category.id) {
+        <li>
+          <button
+            type="button"
+            (click)="updateFilter('category', category.slug)"
+            [class.active]="query.category === category.slug"
+          >
+            {{ category.name }}
+          </button>
+        </li>
+      }
+    </ul>
+
+    <h3>Brand</h3>
+    <ul>
+      <li>
+        <button type="button" (click)="updateFilter('brand', '')" [class.active]="!query.brand">All</button>
+      </li>
+      @for (brand of brands(); track brand.id) {
+        <li>
+          <button
+            type="button"
+            (click)="updateFilter('brand', brand.slug)"
+            [class.active]="query.brand === brand.slug"
+          >
+            {{ brand.name }}
+          </button>
+        </li>
+      }
+    </ul>
+
+    <h3>Gender</h3>
+    <ul>
+      <li>
+        <button type="button" (click)="updateFilter('gender', '')" [class.active]="!query.gender">All</button>
+      </li>
+      @for (g of ['MALE', 'FEMALE', 'UNISEX']; track g) {
+        <li>
+          <button type="button" (click)="updateFilter('gender', g)" [class.active]="query.gender === g">
+            {{ g }}
+          </button>
+        </li>
+      }
+    </ul>
+  </aside>
+
+  <section class="results">
+    <div class="results-head">
+      <h1>{{ query.q ? 'Search results for "' + query.q + '"' : 'Shop All Fragrances' }}</h1>
+      <select (change)="updateFilter('sort', $any($event.target).value)">
+        <option value="newest" [selected]="query.sort === 'newest' || !query.sort">Newest</option>
+        <option value="price_asc" [selected]="query.sort === 'price_asc'">Price: Low to High</option>
+        <option value="price_desc" [selected]="query.sort === 'price_desc'">Price: High to Low</option>
+        <option value="rating" [selected]="query.sort === 'rating'">Top Rated</option>
+        <option value="bestseller" [selected]="query.sort === 'bestseller'">Best Sellers</option>
+      </select>
+    </div>
+
+    @if (loading()) {
+      <div class="product-grid">
+        @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+          <div class="skeleton-card"></div>
+        }
+      </div>
+    } @else if (products().length === 0) {
+      <div class="empty-state">
+        <p>No fragrances matched your filters. Try clearing some filters.</p>
+      </div>
+    } @else {
+      <div class="product-grid">
+        @for (product of products(); track product.id) {
+          <app-product-card [product]="product" />
+        }
+      </div>
+      <div class="pagination">
+        <button type="button" class="btn btn-ghost" (click)="prevPage()" [disabled]="(query.page ?? 1) <= 1">
+          ← Previous
+        </button>
+        <span>Page {{ query.page }}</span>
+        <button type="button" class="btn btn-ghost" (click)="nextPage()" [disabled]="products().length < (query.limit ?? 12)">
+          Next →
+        </button>
+      </div>
+    }
+  </section>
+</div>

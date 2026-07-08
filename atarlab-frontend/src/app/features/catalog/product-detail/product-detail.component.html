@@ -1,0 +1,185 @@
+@if (loading()) {
+  <div class="container loading-state">Loading fragrance details…</div>
+} @else if (product(); as p) {
+  <div class="container pdp">
+    <section class="gallery">
+      <div class="main-image">
+        @if (p.images[activeImageIndex()]?.url) {
+          <img [src]="p.images[activeImageIndex()].url" [alt]="p.name" />
+        }
+      </div>
+      @if (p.images && p.images.length > 1) {
+        <div class="thumbs">
+          @for (image of p.images; track image.id; let i = $index) {
+            <button type="button" [class.active]="i === activeImageIndex()" (click)="activeImageIndex.set(i)">
+              <img [src]="image.url" [alt]="image.altText ?? p.name" />
+            </button>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="info">
+      @if (p.brand) {
+        <p class="brand">{{ p.brand.name }}</p>
+      }
+      <h1>{{ p.name }}</h1>
+      <app-rating-stars [rating]="p.avgRating" [count]="p.reviewCount" />
+
+      <p class="short-desc">{{ p.shortDescription }}</p>
+
+      <div class="price-block">
+        <span class="price">{{ selectedVariant()?.price | inr }}</span>
+        @if (selectedVariant()?.compareAtPrice) {
+          <span class="compare">{{ selectedVariant()?.compareAtPrice | inr }}</span>
+        }
+      </div>
+
+      <div class="variants">
+        @for (variant of p.variants; track variant.id) {
+          <button
+            type="button"
+            class="variant-chip"
+            [class.active]="selectedVariant()?.id === variant.id"
+            [disabled]="variant.stockQuantity === 0"
+            (click)="selectVariant(variant)"
+          >
+            {{ variant.sizeMl }}ml
+            @if (variant.stockQuantity === 0) {
+              <small>Sold out</small>
+            }
+          </button>
+        }
+      </div>
+
+      <div class="attributes">
+        <span><strong>Gender:</strong> {{ p.gender }}</span>
+        @if (p.concentration) {
+          <span><strong>Type:</strong> {{ p.concentration }}</span>
+        }
+        @if (p.longevity) {
+          <span><strong>Longevity:</strong> {{ p.longevity }}</span>
+        }
+        @if (p.projection) {
+          <span><strong>Projection:</strong> {{ p.projection }}</span>
+        }
+      </div>
+
+      <div class="purchase-row">
+        <app-quantity-stepper [value]="quantity()" (changed)="quantity.set($event)" />
+        <button
+          type="button"
+          class="btn btn-primary btn-block"
+          [disabled]="!selectedVariant() || selectedVariant()!.stockQuantity === 0"
+          (click)="addToCart()"
+        >
+          Add to Cart
+        </button>
+        <button type="button" class="btn btn-ghost" (click)="addToWishlist()">♡ Save</button>
+      </div>
+
+      <div class="tabs">
+        <div class="tab-bar">
+          <button type="button" [class.active]="activeTab() === 'description'" (click)="activeTab.set('description')">
+            Description
+          </button>
+          <button type="button" [class.active]="activeTab() === 'notes'" (click)="activeTab.set('notes')">
+            Fragrance Notes
+          </button>
+          <button type="button" [class.active]="activeTab() === 'ingredients'" (click)="activeTab.set('ingredients')">
+            Ingredients
+          </button>
+          <button type="button" [class.active]="activeTab() === 'reviews'" (click)="activeTab.set('reviews')">
+            Reviews ({{ p.reviewCount }})
+          </button>
+        </div>
+
+        <div class="tab-panel">
+          @switch (activeTab()) {
+            @case ('description') {
+              <p>{{ p.description }}</p>
+            }
+            @case ('notes') {
+              <div class="notes-grid">
+                @for (type of ['TOP', 'MIDDLE', 'BASE']; track type) {
+                  <div class="note-col">
+                    <h4>{{ type }} Notes</h4>
+                    <ul>
+                      @for (note of p.fragranceNotes; track note.id) {
+                        @if (note.noteType === type) {
+                          <li>{{ note.name }}</li>
+                        }
+                      }
+                    </ul>
+                  </div>
+                }
+              </div>
+            }
+            @case ('ingredients') {
+              <ul class="ingredients-list">
+                @for (ingredient of p.ingredients; track ingredient.id) {
+                  <li>{{ ingredient.name }}</li>
+                }
+              </ul>
+            }
+            @case ('reviews') {
+              <div class="reviews">
+                @if (reviews().length === 0) {
+                  <p>No reviews yet — be the first to share your experience.</p>
+                }
+                @for (review of reviews(); track review.id) {
+                  <div class="review">
+                    <app-rating-stars [rating]="review.rating" [showCount]="false" />
+                    @if (review.title) {
+                      <strong>{{ review.title }}</strong>
+                    }
+                    <p>{{ review.comment }}</p>
+                    <small>{{ review.user.fullName }}</small>
+                  </div>
+                }
+
+                @if (authStore.isAuthenticated()) {
+                  <form class="review-form" (submit)="$event.preventDefault(); submitReview()">
+                    <h4>Write a Review</h4>
+                    <select [ngModel]="newRating()" (ngModelChange)="newRating.set($event)" name="rating">
+                      @for (r of [5, 4, 3, 2, 1]; track r) {
+                        <option [value]="r">{{ r }} stars</option>
+                      }
+                    </select>
+                    <input
+                      type="text"
+                      placeholder="Title (optional)"
+                      [ngModel]="newTitle()"
+                      (ngModelChange)="newTitle.set($event)"
+                      name="title"
+                    />
+                    <textarea
+                      placeholder="Share your experience…"
+                      [ngModel]="newComment()"
+                      (ngModelChange)="newComment.set($event)"
+                      name="comment"
+                    ></textarea>
+                    <button type="submit" class="btn btn-primary" [disabled]="submittingReview()">
+                      Submit Review
+                    </button>
+                  </form>
+                }
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+
+  @if (p.related && p.related.length > 0) {
+    <section class="container related-section">
+      <h2>You May Also Like</h2>
+      <div class="product-grid">
+        @for (related of p.related; track related.id) {
+          <app-product-card [product]="related" />
+        }
+      </div>
+    </section>
+  }
+}
