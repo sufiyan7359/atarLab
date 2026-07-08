@@ -7,6 +7,7 @@ import { CheckoutDto } from './dto/checkout.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { RequestUser } from '../../common/interfaces/auth.interface';
+import { OrderDeliveriesService } from '../delivery/order-deliveries.service';
 
 @ApiTags('Orders')
 @ApiBearerAuth()
@@ -15,6 +16,7 @@ export class OrdersController {
   constructor(
     private readonly ordersService: OrdersService,
     private readonly invoicePdfService: InvoicePdfService,
+    private readonly orderDeliveriesService: OrderDeliveriesService,
   ) {}
 
   @Post('checkout')
@@ -38,7 +40,8 @@ export class OrdersController {
   async tracking(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: RequestUser) {
     const order = await this.ordersService.findOneOwned(id, user.id);
     const history = await this.ordersService.getStatusHistory(id);
-    return { status: order.status, statusHistory: history };
+    const delivery = await this.orderDeliveriesService.getByOrderId(id);
+    return { status: order.status, statusHistory: history, delivery };
   }
 
   @Post(':id/cancel')

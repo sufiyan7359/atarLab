@@ -14,6 +14,9 @@ import { InvoicePdfService } from './invoice-pdf.service';
 import { CartModule } from '../cart/cart.module';
 import { CouponsModule } from '../coupons/coupons.module';
 import { PaymentsModule } from '../payments/payments.module';
+import { TrackingModule } from '../tracking/tracking.module';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { DeliveryModule } from '../delivery/delivery.module';
 
 @Module({
   imports: [
@@ -29,6 +32,9 @@ import { PaymentsModule } from '../payments/payments.module';
     CartModule,
     CouponsModule,
     forwardRef(() => PaymentsModule),
+    TrackingModule,
+    NotificationsModule,
+    DeliveryModule,
   ],
   controllers: [OrdersController, AdminOrdersController],
   providers: [OrdersService, InvoicePdfService],

@@ -4,6 +4,7 @@ import { seedRoles } from './seed-roles';
 import { seedCatalog } from './seed-catalog';
 import { seedAdmin } from './seed-admin';
 import { seedBanners } from './seed-banners';
+import { seedDeliveryAgents } from './seed-delivery-agents';
 
 async function run() {
   await dataSource.initialize();
@@ -12,6 +13,7 @@ async function run() {
     await seedCatalog(dataSource);
     await seedAdmin(dataSource);
     await seedBanners(dataSource);
+    await seedDeliveryAgents(dataSource);
     console.log('Seeding completed successfully.');
   } finally {
     await dataSource.destroy();

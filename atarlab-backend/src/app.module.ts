@@ -36,6 +36,9 @@ import { ActivityLogsModule } from './modules/activity-logs/activity-logs.module
 import { ActivityLogInterceptor } from './modules/activity-logs/activity-log.interceptor';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { SettingsModule } from './modules/settings/settings.module';
+import { TrackingModule } from './modules/tracking/tracking.module';
+import { DeliveryModule } from './modules/delivery/delivery.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -68,6 +71,9 @@ import { SettingsModule } from './modules/settings/settings.module';
     ActivityLogsModule,
     AnalyticsModule,
     SettingsModule,
+    TrackingModule,
+    DeliveryModule,
+    NotificationsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

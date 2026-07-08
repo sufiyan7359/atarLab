@@ -28,6 +28,22 @@ import {
 import { generateOrderNumber } from '../../common/utils/order-number.util';
 import { PaginatedResult, PaginationDto } from '../../common/dto/pagination.dto';
 import { AppConfig } from '../../config/configuration';
+import { TrackingGateway } from '../tracking/tracking.gateway';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/entities/notification.entity';
+import { OrderDeliveriesService } from '../delivery/order-deliveries.service';
+import { DeliverySimulatorService } from '../delivery/delivery-simulator.service';
+
+const STATUS_MESSAGES: Partial<Record<OrderStatus, string>> = {
+  [OrderStatus.CONFIRMED]: 'Your order has been confirmed.',
+  [OrderStatus.PACKED]: 'Your order has been packed.',
+  [OrderStatus.PICKED]: 'Your order has been picked up for shipping.',
+  [OrderStatus.SHIPPED]: 'Your order is on its way.',
+  [OrderStatus.OUT_FOR_DELIVERY]: 'Your order is out for delivery.',
+  [OrderStatus.DELIVERED]: 'Your order has been delivered.',
+  [OrderStatus.CANCELLED]: 'Your order has been cancelled.',
+  [OrderStatus.RETURNED]: 'Your order has been returned.',
+};
 
 export interface CheckoutResult {
   order: Order;
@@ -46,6 +62,10 @@ export class OrdersService {
     private readonly paymentsService: PaymentsService,
     private readonly razorpayProvider: RazorpayProvider,
     private readonly configService: ConfigService,
+    private readonly trackingGateway: TrackingGateway,
+    private readonly notificationsService: NotificationsService,
+    private readonly orderDeliveriesService: OrderDeliveriesService,
+    private readonly deliverySimulatorService: DeliverySimulatorService,
   ) {}
 
   async checkout(userId: string, dto: CheckoutDto): Promise<CheckoutResult> {
@@ -277,6 +297,17 @@ export class OrdersService {
       );
 
       return order;
+    }).then(async (order) => {
+      this.trackingGateway.emitOrderUpdate(order.id, { status: order.status, note, updatedAt: new Date() });
+      this.deliverySimulatorService.stop(order.id);
+      await this.notificationsService.create(
+        order.userId,
+        NotificationType.ORDER_STATUS,
+        `Order ${order.orderNumber}`,
+        STATUS_MESSAGES[OrderStatus.CANCELLED]!,
+        order.id,
+      );
+      return order;
     });
   }
 
@@ -287,20 +318,49 @@ export class OrdersService {
     await this.historyRepo.save(
       this.historyRepo.create({ orderId: order.id, status, note: note ?? null, changedByUserId: actorUserId }),
     );
+
+    this.trackingGateway.emitOrderUpdate(order.id, { status, note: note ?? null, updatedAt: new Date() });
+    await this.notificationsService.create(
+      order.userId,
+      NotificationType.ORDER_STATUS,
+      `Order ${order.orderNumber}`,
+      STATUS_MESSAGES[status] ?? `Order status updated to ${status}.`,
+      order.id,
+    );
+
+    if (status === OrderStatus.OUT_FOR_DELIVERY) {
+      await this.deliverySimulatorService.start(order.id);
+    } else if (status === OrderStatus.DELIVERED) {
+      this.deliverySimulatorService.stop(order.id);
+      await this.orderDeliveriesService.markDelivered(order.id);
+    }
+
     return order;
   }
 
   /** Marks an order as paid (from a verified payment or webhook) and confirms it if still pending. */
   async markPaid(orderId: string, note: string): Promise<Order> {
     const order = await this.findByIdAdmin(orderId);
+    const wasPending = order.status === OrderStatus.PENDING;
     order.paymentStatus = PaymentStatus.PAID;
-    if (order.status === OrderStatus.PENDING) {
+    if (wasPending) {
       order.status = OrderStatus.CONFIRMED;
     }
     await this.orderRepo.save(order);
     await this.historyRepo.save(
       this.historyRepo.create({ orderId: order.id, status: order.status, note }),
     );
+
+    this.trackingGateway.emitOrderUpdate(order.id, { status: order.status, note, updatedAt: new Date() });
+    if (wasPending) {
+      await this.notificationsService.create(
+        order.userId,
+        NotificationType.ORDER_STATUS,
+        `Order ${order.orderNumber}`,
+        STATUS_MESSAGES[OrderStatus.CONFIRMED]!,
+        order.id,
+      );
+    }
     return order;
   }
 
