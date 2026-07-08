@@ -1,0 +1,60 @@
+<div class="search-wrap">
+  <form class="search-form" (submit)="onSearch($event)">
+    <input
+      type="search"
+      placeholder="Search fragrances…"
+      aria-label="Search fragrances"
+      [value]="query()"
+      (input)="onInput($any($event.target).value)"
+      (focus)="suggestions() && suggestionsOpen.set(true)"
+    />
+    @if (voiceSupported) {
+      <button
+        type="button"
+        class="mic-btn"
+        [class.listening]="listening()"
+        aria-label="Search by voice"
+        (click)="startVoiceSearch()"
+      >
+        🎤
+      </button>
+    }
+  </form>
+
+  @if (suggestionsOpen() && suggestions(); as s) {
+    <div class="suggestions-backdrop" (click)="closeSuggestions()"></div>
+    <div class="suggestions-panel">
+      @if (s.products.length === 0 && s.categories.length === 0 && s.brands.length === 0) {
+        <p class="empty">No matches for "{{ query() }}"</p>
+      } @else {
+        @if (s.categories.length > 0) {
+          <p class="group-label">Categories</p>
+          @for (c of s.categories; track c.id) {
+            <a class="suggestion-row" [routerLink]="['/shop']" [queryParams]="{ category: c.slug }" (click)="selectSuggestion()">
+              📁 {{ c.name }}
+            </a>
+          }
+        }
+        @if (s.brands.length > 0) {
+          <p class="group-label">Brands</p>
+          @for (b of s.brands; track b.id) {
+            <a class="suggestion-row" [routerLink]="['/shop']" [queryParams]="{ brand: b.slug }" (click)="selectSuggestion()">
+              🏷️ {{ b.name }}
+            </a>
+          }
+        }
+        @if (s.products.length > 0) {
+          <p class="group-label">Products</p>
+          @for (p of s.products; track p.id) {
+            <a class="suggestion-row" [routerLink]="['/product', p.slug]" (click)="selectSuggestion()">
+              @if (p.images[0]?.url) {
+                <img [src]="p.images[0].url" alt="" />
+              }
+              {{ p.name }}
+            </a>
+          }
+        }
+      }
+    </div>
+  }
+</div>

@@ -2,7 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiResponse } from '../models/api-response.model';
-import { Brand, Category } from '../models/product.model';
+import { Brand, Category, Product } from '../models/product.model';
+
+export interface SearchSuggestions {
+  products: Product[];
+  categories: Category[];
+  brands: Brand[];
+}
 
 @Injectable({ providedIn: 'root' })
 export class CatalogApiService {
@@ -16,10 +22,7 @@ export class CatalogApiService {
     return this.http.get<ApiResponse<Brand[]>>('/brands');
   }
 
-  suggest(q: string): Observable<ApiResponse<{ products: unknown[]; categories: unknown[]; brands: unknown[] }>> {
-    return this.http.get<ApiResponse<{ products: unknown[]; categories: unknown[]; brands: unknown[] }>>(
-      '/search/suggest',
-      { params: { q } },
-    );
+  suggest(q: string): Observable<ApiResponse<SearchSuggestions>> {
+    return this.http.get<ApiResponse<SearchSuggestions>>('/search/suggest', { params: { q } });
   }
 }

@@ -5,11 +5,12 @@ import { CartStore } from '../../../core/state/cart.store';
 import { NotificationsStore } from '../../../core/state/notifications.store';
 import { AppNotification } from '../../../core/models/tracking.model';
 import { ThemeService } from '../../services/theme.service';
+import { SearchBoxComponent } from '../search-box/search-box.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, SearchBoxComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="site-header">
@@ -22,9 +23,7 @@ import { ThemeService } from '../../services/theme.service';
           <a routerLink="/shop" [queryParams]="{ category: 'pure-attars' }">Attars</a>
         </nav>
 
-        <form class="search" (submit)="onSearch($event)">
-          <input type="search" placeholder="Search fragrances…" [value]="query()" (input)="query.set($any($event.target).value)" />
-        </form>
+        <app-search-box />
 
         <div class="actions">
           <button type="button" class="icon-btn" (click)="theme.toggle()" aria-label="Toggle theme">
@@ -110,22 +109,6 @@ import { ThemeService } from '../../services/theme.service';
         @media (min-width: 900px) {
           display: flex;
         }
-      }
-      .search {
-        flex: 1;
-        display: none;
-        @media (min-width: 700px) {
-          display: block;
-        }
-      }
-      .search input {
-        width: 100%;
-        max-width: 420px;
-        padding: 8px 14px;
-        border-radius: 999px;
-        border: 1px solid var(--border);
-        background: var(--bg-muted);
-        color: var(--text-primary);
       }
       .actions {
         display: flex;
@@ -261,7 +244,6 @@ export class HeaderComponent {
   theme = inject(ThemeService);
   private readonly router = inject(Router);
 
-  query = signal('');
   notificationsOpen = signal(false);
   isAdmin = computed(() => this.authStore.hasRole('SUPER_ADMIN', 'ADMIN', 'STAFF'));
   initials = computed(() => {
@@ -273,12 +255,6 @@ export class HeaderComponent {
       .join('')
       .toUpperCase();
   });
-
-  onSearch(event: Event): void {
-    event.preventDefault();
-    const q = this.query().trim();
-    if (q) this.router.navigate(['/search'], { queryParams: { q } });
-  }
 
   toggleNotifications(): void {
     this.notificationsOpen.update((open) => !open);
