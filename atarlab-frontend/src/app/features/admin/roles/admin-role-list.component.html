@@ -41,9 +41,9 @@
     <tbody>
       @for (role of roles(); track role.id) {
         <tr>
-          <td><strong>{{ role.name }}</strong></td>
-          <td>{{ role.description || '—' }}</td>
-          <td>{{ role.permissions.length }}</td>
+          <td data-label="Role"><strong>{{ role.name }}</strong></td>
+          <td data-label="Description">{{ role.description || '—' }}</td>
+          <td data-label="Permissions">{{ role.permissions.length }}</td>
           <td class="actions">
             <button type="button" class="link-btn" (click)="startEdit(role)">Edit</button>
             <button type="button" class="link-btn danger" (click)="remove(role.id)">Delete</button>

@@ -32,8 +32,8 @@
     <tbody>
       @for (brand of brands(); track brand.id) {
         <tr>
-          <td>{{ brand.name }}</td>
-          <td>{{ brand.slug }}</td>
+          <td data-label="Name">{{ brand.name }}</td>
+          <td data-label="Slug">{{ brand.slug }}</td>
           <td class="actions">
             <button type="button" class="link-btn" (click)="startEdit(brand)">Edit</button>
             <button type="button" class="link-btn danger" (click)="remove(brand.id)">Delete</button>

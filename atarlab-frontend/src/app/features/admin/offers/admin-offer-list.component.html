@@ -57,9 +57,9 @@
     <tbody>
       @for (offer of offers(); track offer.id) {
         <tr>
-          <td>{{ offer.title }}</td>
-          <td>{{ offer.discountType === 'PERCENTAGE' ? offer.discountValue + '%' : ('₹' + offer.discountValue) }}</td>
-          <td><span class="badge-pill" [class.on]="offer.isActive" [class.off]="!offer.isActive">{{ offer.isActive ? 'Active' : 'Inactive' }}</span></td>
+          <td data-label="Title">{{ offer.title }}</td>
+          <td data-label="Discount">{{ offer.discountType === 'PERCENTAGE' ? offer.discountValue + '%' : ('₹' + offer.discountValue) }}</td>
+          <td data-label="Status"><span class="badge-pill" [class.on]="offer.isActive" [class.off]="!offer.isActive">{{ offer.isActive ? 'Active' : 'Inactive' }}</span></td>
           <td class="actions">
             <button type="button" class="link-btn" (click)="startEdit(offer)">Edit</button>
             <button type="button" class="link-btn danger" (click)="remove(offer.id)">Delete</button>

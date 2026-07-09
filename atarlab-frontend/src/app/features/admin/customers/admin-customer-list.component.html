@@ -13,12 +13,12 @@
       <tbody>
         @for (customer of customers(); track customer.id) {
           <tr>
-            <td>{{ customer.fullName }}</td>
-            <td>{{ customer.email ?? '—' }}</td>
-            <td>{{ customer.phone ?? '—' }}</td>
-            <td>{{ customer.createdAt | date: 'mediumDate' }}</td>
-            <td>{{ roleNames(customer) }}</td>
-            <td>
+            <td data-label="Name">{{ customer.fullName }}</td>
+            <td data-label="Email">{{ customer.email ?? '—' }}</td>
+            <td data-label="Phone">{{ customer.phone ?? '—' }}</td>
+            <td data-label="Joined">{{ customer.createdAt | date: 'mediumDate' }}</td>
+            <td data-label="Roles">{{ roleNames(customer) }}</td>
+            <td data-label="Status">
               <span class="badge-pill" [class.on]="customer.isActive" [class.off]="!customer.isActive">
                 {{ customer.isActive ? 'Active' : 'Disabled' }}
               </span>

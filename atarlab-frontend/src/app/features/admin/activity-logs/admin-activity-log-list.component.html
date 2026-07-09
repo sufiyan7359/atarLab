@@ -11,11 +11,11 @@
       <tbody>
         @for (log of logs(); track log.id) {
           <tr>
-            <td>{{ log.createdAt | date: 'medium' }}</td>
-            <td>{{ log.actor?.fullName ?? 'System' }}</td>
-            <td>{{ log.action }}</td>
-            <td>{{ log.entityType }}</td>
-            <td>{{ log.ip ?? '—' }}</td>
+            <td data-label="When">{{ log.createdAt | date: 'medium' }}</td>
+            <td data-label="Actor">{{ log.actor?.fullName ?? 'System' }}</td>
+            <td data-label="Action">{{ log.action }}</td>
+            <td data-label="Entity">{{ log.entityType }}</td>
+            <td data-label="IP">{{ log.ip ?? '—' }}</td>
           </tr>
         } @empty {
           <tr><td colspan="5">No activity recorded yet.</td></tr>

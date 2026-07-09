@@ -46,6 +46,68 @@
   overflow-x: auto;
 }
 
+// Below this width, admin-table stops being a horizontally-scrollable table (columns
+// like price/actions were getting silently cut off the edge with no visual hint there
+// was more to scroll to) and becomes a stack of label:value cards instead — one card
+// per row, using each <td>'s data-label attribute as the row label.
+@media (max-width: 700px) {
+  .table-wrap {
+    overflow-x: visible;
+  }
+  .admin-table {
+    border: none;
+    background: none;
+  }
+  .admin-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .admin-table,
+  .admin-table tbody,
+  .admin-table tr {
+    display: block;
+    width: 100%;
+  }
+  .admin-table tr {
+    margin-bottom: var(--space-3);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  .admin-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+  }
+  .admin-table tr td:last-child {
+    border-bottom: none;
+  }
+  .admin-table td[data-label]::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+    text-align: left;
+  }
+  .admin-table td.cell-preview {
+    justify-content: flex-start;
+  }
+  .admin-table .actions {
+    justify-content: flex-end;
+  }
+}
+
 .badge-pill {
   display: inline-block;
   padding: 2px 10px;

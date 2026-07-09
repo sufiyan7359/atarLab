@@ -17,10 +17,10 @@
       <tbody>
         @for (row of rows(); track row.id) {
           <tr>
-            <td>{{ row.product?.name ?? '—' }}</td>
-            <td>{{ row.sku }}</td>
-            <td>{{ row.sizeMl }}ml</td>
-            <td>
+            <td data-label="Product">{{ row.product?.name ?? '—' }}</td>
+            <td data-label="SKU">{{ row.sku }}</td>
+            <td data-label="Size">{{ row.sizeMl }}ml</td>
+            <td data-label="Stock">
               <span class="badge-pill" [class.off]="row.isLowStock" [class.on]="!row.isLowStock">
                 {{ row.stockQuantity }}
               </span>

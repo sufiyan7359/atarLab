@@ -35,10 +35,10 @@
     <tbody>
       @for (agent of agents(); track agent.id) {
         <tr>
-          <td>{{ agent.name }}</td>
-          <td>{{ agent.phone }}</td>
-          <td>{{ agent.vehicleNumber ?? '—' }}</td>
-          <td><span class="badge-pill" [class.on]="agent.isActive" [class.off]="!agent.isActive">{{ agent.isActive ? 'Active' : 'Inactive' }}</span></td>
+          <td data-label="Name">{{ agent.name }}</td>
+          <td data-label="Phone">{{ agent.phone }}</td>
+          <td data-label="Vehicle">{{ agent.vehicleNumber ?? '—' }}</td>
+          <td data-label="Status"><span class="badge-pill" [class.on]="agent.isActive" [class.off]="!agent.isActive">{{ agent.isActive ? 'Active' : 'Inactive' }}</span></td>
           <td class="actions">
             <button type="button" class="link-btn" (click)="startEdit(agent)">Edit</button>
             <button type="button" class="link-btn" [class.danger]="agent.isActive" (click)="toggleActive(agent)">

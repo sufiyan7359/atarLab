@@ -47,11 +47,11 @@
     <tbody>
       @for (coupon of coupons(); track coupon.id) {
         <tr>
-          <td><strong>{{ coupon.code }}</strong></td>
-          <td>{{ coupon.type }}</td>
-          <td>{{ coupon.type === 'PERCENTAGE' ? coupon.value + '%' : (coupon.value | inr) }}</td>
-          <td>{{ coupon.usedCount }} @if (coupon.usageLimit) { / {{ coupon.usageLimit }} }</td>
-          <td><span class="badge-pill" [class.on]="coupon.isActive" [class.off]="!coupon.isActive">{{ coupon.isActive ? 'Active' : 'Inactive' }}</span></td>
+          <td data-label="Code"><strong>{{ coupon.code }}</strong></td>
+          <td data-label="Type">{{ coupon.type }}</td>
+          <td data-label="Value">{{ coupon.type === 'PERCENTAGE' ? coupon.value + '%' : (coupon.value | inr) }}</td>
+          <td data-label="Used">{{ coupon.usedCount }} @if (coupon.usageLimit) { / {{ coupon.usageLimit }} }</td>
+          <td data-label="Status"><span class="badge-pill" [class.on]="coupon.isActive" [class.off]="!coupon.isActive">{{ coupon.isActive ? 'Active' : 'Inactive' }}</span></td>
           <td class="actions">
             <button type="button" class="link-btn" (click)="startEdit(coupon)">Edit</button>
             <button type="button" class="link-btn danger" (click)="remove(coupon.id)">Delete</button>

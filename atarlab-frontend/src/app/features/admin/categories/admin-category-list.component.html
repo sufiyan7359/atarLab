@@ -32,9 +32,9 @@
     <tbody>
       @for (category of categories(); track category.id) {
         <tr>
-          <td>{{ category.name }}</td>
-          <td>{{ category.slug }}</td>
-          <td>{{ category.children?.length ?? 0 }}</td>
+          <td data-label="Name">{{ category.name }}</td>
+          <td data-label="Slug">{{ category.slug }}</td>
+          <td data-label="Subcategories">{{ category.children?.length ?? 0 }}</td>
           <td class="actions">
             <button type="button" class="link-btn" (click)="startEdit(category)">Edit</button>
             <button type="button" class="link-btn danger" (click)="remove(category.id)">Delete</button>

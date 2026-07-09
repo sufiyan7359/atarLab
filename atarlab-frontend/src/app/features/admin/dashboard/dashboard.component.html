@@ -53,9 +53,9 @@
       <tbody>
         @for (row of topProducts(); track row.productName) {
           <tr>
-            <td>{{ row.productName }}</td>
-            <td>{{ row.unitsSold }}</td>
-            <td>{{ row.revenue | inr }}</td>
+            <td data-label="Product">{{ row.productName }}</td>
+            <td data-label="Units Sold">{{ row.unitsSold }}</td>
+            <td data-label="Revenue">{{ row.revenue | inr }}</td>
           </tr>
         } @empty {
           <tr><td colspan="3">No sales yet.</td></tr>

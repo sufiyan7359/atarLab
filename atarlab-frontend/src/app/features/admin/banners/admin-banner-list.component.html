@@ -47,10 +47,10 @@
     <tbody>
       @for (banner of banners(); track banner.id) {
         <tr>
-          <td><img [src]="banner.imageUrl" alt="" style="width: 64px; height: 36px; object-fit: cover; border-radius: 4px;" /></td>
-          <td>{{ banner.title || '—' }}</td>
-          <td>{{ banner.position }}</td>
-          <td><span class="badge-pill" [class.on]="banner.isActive" [class.off]="!banner.isActive">{{ banner.isActive ? 'Active' : 'Inactive' }}</span></td>
+          <td class="cell-preview"><img [src]="banner.imageUrl" alt="" style="width: 64px; height: 36px; object-fit: cover; border-radius: 4px;" /></td>
+          <td data-label="Title">{{ banner.title || '—' }}</td>
+          <td data-label="Position">{{ banner.position }}</td>
+          <td data-label="Status"><span class="badge-pill" [class.on]="banner.isActive" [class.off]="!banner.isActive">{{ banner.isActive ? 'Active' : 'Inactive' }}</span></td>
           <td class="actions">
             <button type="button" class="link-btn" (click)="startEdit(banner)">Edit</button>
             <button type="button" class="link-btn danger" (click)="remove(banner.id)">Delete</button>

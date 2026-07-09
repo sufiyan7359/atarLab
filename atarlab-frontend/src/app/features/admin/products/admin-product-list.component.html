@@ -22,12 +22,12 @@
       <tbody>
         @for (product of products(); track product.id) {
           <tr>
-            <td>{{ product.name }}</td>
-            <td>{{ product.brand?.name ?? '—' }}</td>
-            <td>{{ product.category?.name ?? '—' }}</td>
-            <td>{{ product.basePrice | inr }}</td>
-            <td>{{ product.isFeatured ? 'Yes' : 'No' }}</td>
-            <td><span class="badge-pill on">Active</span></td>
+            <td data-label="Name">{{ product.name }}</td>
+            <td data-label="Brand">{{ product.brand?.name ?? '—' }}</td>
+            <td data-label="Category">{{ product.category?.name ?? '—' }}</td>
+            <td data-label="Price">{{ product.basePrice | inr }}</td>
+            <td data-label="Featured">{{ product.isFeatured ? 'Yes' : 'No' }}</td>
+            <td data-label="Status"><span class="badge-pill on">Active</span></td>
             <td class="actions">
               <a class="link-btn" [routerLink]="['/admin/products', product.id, 'edit']">Edit</a>
               <button type="button" class="link-btn danger" (click)="remove(product.id)">Delete</button>

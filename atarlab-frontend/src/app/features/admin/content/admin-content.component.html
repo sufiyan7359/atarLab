@@ -46,10 +46,10 @@
       <tbody>
         @for (t of testimonials(); track t.id) {
           <tr>
-            <td>{{ t.authorName }}</td>
-            <td style="max-width: 320px;">{{ t.quote }}</td>
-            <td>{{ t.rating }}★</td>
-            <td><span class="badge-pill" [class.on]="t.isActive" [class.off]="!t.isActive">{{ t.isActive ? 'Active' : 'Inactive' }}</span></td>
+            <td data-label="Author">{{ t.authorName }}</td>
+            <td data-label="Quote" style="max-width: 320px;">{{ t.quote }}</td>
+            <td data-label="Rating">{{ t.rating }}★</td>
+            <td data-label="Status"><span class="badge-pill" [class.on]="t.isActive" [class.off]="!t.isActive">{{ t.isActive ? 'Active' : 'Inactive' }}</span></td>
             <td class="actions">
               <button type="button" class="link-btn" (click)="startEditTestimonial(t)">Edit</button>
               <button type="button" class="link-btn danger" (click)="removeTestimonial(t.id)">Delete</button>
@@ -93,8 +93,8 @@
       <tbody>
         @for (f of faqs(); track f.id) {
           <tr>
-            <td>{{ f.question }}</td>
-            <td><span class="badge-pill" [class.on]="f.isActive" [class.off]="!f.isActive">{{ f.isActive ? 'Active' : 'Inactive' }}</span></td>
+            <td data-label="Question">{{ f.question }}</td>
+            <td data-label="Status"><span class="badge-pill" [class.on]="f.isActive" [class.off]="!f.isActive">{{ f.isActive ? 'Active' : 'Inactive' }}</span></td>
             <td class="actions">
               <button type="button" class="link-btn" (click)="startEditFaq(f)">Edit</button>
               <button type="button" class="link-btn danger" (click)="removeFaq(f.id)">Delete</button>
@@ -146,9 +146,9 @@
       <tbody>
         @for (s of socialPosts(); track s.id) {
           <tr>
-            <td><img [src]="s.imageUrl" alt="" style="width: 56px; height: 56px; object-fit: cover; border-radius: 4px;" /></td>
-            <td>{{ s.caption ?? '—' }}</td>
-            <td><span class="badge-pill" [class.on]="s.isActive" [class.off]="!s.isActive">{{ s.isActive ? 'Active' : 'Inactive' }}</span></td>
+            <td class="cell-preview"><img [src]="s.imageUrl" alt="" style="width: 56px; height: 56px; object-fit: cover; border-radius: 4px;" /></td>
+            <td data-label="Caption">{{ s.caption ?? '—' }}</td>
+            <td data-label="Status"><span class="badge-pill" [class.on]="s.isActive" [class.off]="!s.isActive">{{ s.isActive ? 'Active' : 'Inactive' }}</span></td>
             <td class="actions">
               <button type="button" class="link-btn" (click)="startEditSocial(s)">Edit</button>
               <button type="button" class="link-btn danger" (click)="removeSocial(s.id)">Delete</button>
@@ -212,9 +212,9 @@
       <tbody>
         @for (b of blogPosts(); track b.id) {
           <tr>
-            <td>{{ b.title }}</td>
-            <td>{{ b.slug }}</td>
-            <td><span class="badge-pill" [class.on]="b.isPublished" [class.off]="!b.isPublished">{{ b.isPublished ? 'Published' : 'Draft' }}</span></td>
+            <td data-label="Title">{{ b.title }}</td>
+            <td data-label="Slug">{{ b.slug }}</td>
+            <td data-label="Status"><span class="badge-pill" [class.on]="b.isPublished" [class.off]="!b.isPublished">{{ b.isPublished ? 'Published' : 'Draft' }}</span></td>
             <td class="actions">
               <button type="button" class="link-btn" (click)="startEditBlog(b)">Edit</button>
               <button type="button" class="link-btn danger" (click)="removeBlog(b.id)">Delete</button>
@@ -238,8 +238,8 @@
       <tbody>
         @for (s of subscribers(); track s.id) {
           <tr>
-            <td>{{ s.email }}</td>
-            <td>{{ s.createdAt | date: 'medium' }}</td>
+            <td data-label="Email">{{ s.email }}</td>
+            <td data-label="Subscribed">{{ s.createdAt | date: 'medium' }}</td>
           </tr>
         }
       </tbody>
