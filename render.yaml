@@ -19,6 +19,10 @@
 # the codebase actually connects to it yet — it's reserved for post-MVP caching/
 # BullMQ/Socket.IO scaling work. Add a `keyvalue` service when that lands.
 #
+# Migrations run automatically on every backend boot (docker/Dockerfile's CMD runs
+# `npm run migration:run:prod` before starting the server — a no-op once applied).
+# Not wired as Render's preDeployCommand since that requires a paid plan.
+#
 # One-time manual steps after the first deploy (Render Shell, on atarlab-backend):
 #   npm run seed          — creates the admin user + sample catalog
 # And note: file uploads fall back to local disk when CLOUDINARY_* is blank, and
@@ -39,7 +43,8 @@ services:
     dockerContext: atarlab-backend
     plan: free
     healthCheckPath: /health
-    preDeployCommand: npm run migration:run:prod
+    # Free-tier services can't use preDeployCommand, so migrations run as part of the
+    # container's start command instead — see docker/Dockerfile's CMD.
     envVars:
       - key: NODE_ENV
         value: production
