@@ -94,26 +94,30 @@ export class Product extends BaseEntity {
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz' })
   deletedAt: Date | null;
 
+  // cascade excludes 'remove'/'soft-remove': these children have no DeleteDateColumn of
+  // their own, so TypeORM's softRemove(product) would otherwise try (and crash) cascading
+  // a soft-delete onto them. Soft-deleting a product should preserve its variant history
+  // (past orders still reference variantId) rather than touch these rows at all.
   @OneToMany(() => ProductVariant, (variant) => variant.product, {
-    cascade: true,
+    cascade: ['insert', 'update'],
     orphanedRowAction: 'delete',
   })
   variants: ProductVariant[];
 
   @OneToMany(() => ProductImage, (image) => image.product, {
-    cascade: true,
+    cascade: ['insert', 'update'],
     orphanedRowAction: 'delete',
   })
   images: ProductImage[];
 
   @OneToMany(() => FragranceNote, (note) => note.product, {
-    cascade: true,
+    cascade: ['insert', 'update'],
     orphanedRowAction: 'delete',
   })
   fragranceNotes: FragranceNote[];
 
   @OneToMany(() => ProductIngredient, (ingredient) => ingredient.product, {
-    cascade: true,
+    cascade: ['insert', 'update'],
     orphanedRowAction: 'delete',
   })
   ingredients: ProductIngredient[];
