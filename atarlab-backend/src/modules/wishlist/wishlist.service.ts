@@ -25,7 +25,11 @@ export class WishlistService {
   ) {}
 
   findAllForUser(userId: string): Promise<Wishlist[]> {
-    return this.repo.find({ where: { userId }, order: { createdAt: 'DESC' } });
+    return this.repo.find({
+      where: { userId },
+      relations: { product: { images: true } },
+      order: { createdAt: 'DESC' },
+    });
   }
 
   async add(userId: string, dto: AddWishlistItemDto): Promise<Wishlist> {
