@@ -52,7 +52,9 @@ export class AdminCouponListComponent implements OnInit {
   }
 
   startEdit(coupon: Coupon): void {
-    this.form = { ...coupon };
+    const { code, type, value, minOrderValue, maxDiscount, usageLimit, perUserLimit, startsAt, expiresAt, isActive } =
+      coupon;
+    this.form = { code, type, value, minOrderValue, maxDiscount, usageLimit, perUserLimit, startsAt, expiresAt, isActive };
     this.editingId.set(coupon.id);
     this.showForm.set(true);
   }

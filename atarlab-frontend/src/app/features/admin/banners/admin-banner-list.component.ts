@@ -52,7 +52,8 @@ export class AdminBannerListComponent implements OnInit {
   }
 
   startEdit(banner: Banner): void {
-    this.form = { ...banner };
+    const { title, imageUrl, linkUrl, position, sortOrder, startsAt, endsAt, isActive } = banner;
+    this.form = { title, imageUrl, linkUrl, position, sortOrder, startsAt, endsAt, isActive };
     this.editingId.set(banner.id);
     this.showForm.set(true);
   }

@@ -66,7 +66,32 @@ export class AdminOfferListComponent implements OnInit {
   }
 
   startEdit(offer: Offer): void {
-    this.form = { ...offer };
+    const {
+      title,
+      description,
+      bannerImage,
+      discountType,
+      discountValue,
+      categoryId,
+      brandId,
+      productId,
+      startsAt,
+      endsAt,
+      isActive,
+    } = offer;
+    this.form = {
+      title,
+      description,
+      bannerImage,
+      discountType,
+      discountValue,
+      categoryId,
+      brandId,
+      productId,
+      startsAt,
+      endsAt,
+      isActive,
+    };
     this.editingId.set(offer.id);
     this.showForm.set(true);
   }
