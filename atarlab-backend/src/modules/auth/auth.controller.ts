@@ -189,14 +189,16 @@ export class AuthController {
     const app = this.configService.get<AppConfig>('app')!;
     res.cookie(REFRESH_COOKIE, value, {
       httpOnly: true,
-      secure: app.env !== 'local',
-      sameSite: 'strict',
+      // SameSite=None is only meaningful (and only accepted by browsers) with Secure —
+      // true whenever it matters, since 'none' is only ever set for real (HTTPS) deploys.
+      secure: app.env !== 'local' || app.cookieSameSite === 'none',
+      sameSite: app.cookieSameSite,
       expires: expiresAt,
-      // Path is intentionally '/', not '/api/v1/auth': in production, frontend and API
-      // share an origin behind a reverse proxy, and the Angular SSR server must receive
-      // this cookie on ordinary page requests (e.g. GET /checkout) to forward it when
-      // silently refreshing the session server-side. httpOnly + Secure + SameSite=Strict
-      // already provide the real protection here — Path scoping added no security value.
+      // Path is intentionally '/', not '/api/v1/auth': when frontend and API share one
+      // origin behind a reverse proxy, the Angular SSR server must receive this cookie on
+      // ordinary page requests (e.g. GET /checkout) to forward it when silently refreshing
+      // the session server-side. httpOnly + Secure + SameSite already provide the real
+      // protection here — Path scoping added no security value.
       path: '/',
     });
   }

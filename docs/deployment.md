@@ -10,6 +10,17 @@
 
 Angular 20's SSR server validates the incoming `Host` header against an allowlist (SSRF hardening) and falls back to client-side rendering if it doesn't match — set `NG_ALLOWED_HOSTS` (comma-separated) to the real hostname(s) the SSR server is served behind in every environment, e.g. `NG_ALLOWED_HOSTS=atarlab.com,www.atarlab.com`. Locally this defaults to `localhost:4000,localhost` via the `serve:ssr:atarlab-frontend` script.
 
+### 1a. Render (current deploy target — two services, no reverse proxy)
+
+`render.yaml` at the repo root is a Blueprint for the deploy actually in use: `atarlab-backend` and `atarlab-frontend` as two independent Render web services (each its own `*.onrender.com` origin, no proxy in front), plus a managed `atarlab-db` Postgres. This is a different topology than section 4 below (which describes a same-origin reverse-proxy setup) — two deliberate deviations make it work:
+
+- **`COOKIE_SAME_SITE=none`** (backend env var, wired through `auth.controller.ts`'s `setRefreshCookie`): a `Strict`/`Lax` refresh-token cookie is never sent on a cross-site request, which is exactly what every frontend→backend call is here. `none` requires `Secure`, satisfied automatically since Render serves HTTPS. Locally and in any future same-origin deploy this stays `strict` (the default).
+- **Absolute `apiUrl`** in `environment.prod.ts`: baked in at build time as `https://atarlab-backend.onrender.com/api/v1` instead of a relative `/api/v1`, since there's no proxy to make that resolve against the right origin.
+
+Redis isn't provisioned on Render yet — it's configured in `.env` but nothing in the codebase connects to it (reserved for the post-MVP caching/BullMQ/Socket.IO work in section 7). Migrations run automatically via the backend service's `preDeployCommand` (`npm run migration:run:prod`, which points TypeORM at the compiled `dist/database/data-source.js` instead of `ts-node` since the Docker runtime image ships no `src/`). The one-time catalog/admin-user seed (`npm run seed`) has to be run manually from the Render Shell — it's not part of the Blueprint since it shouldn't re-run on every deploy.
+
+Free-tier Postgres on Render is deleted after 30 days unless upgraded; free web services spin down after 15 minutes idle (cold start on the next request) — fine for a demo/staging deploy, not for real production traffic.
+
 Secrets (`.env`) are never committed. `.env.example` in each repo documents every required key with dummy placeholder values. Local dev and staging use **sandbox/test credentials** for Razorpay, Stripe, Cloudinary/S3, and Google OAuth per current phase decision — swapping to live keys later is a pure config change.
 
 ## 2. `atarlab-backend` Docker

@@ -8,6 +8,12 @@ export const validationSchema = Joi.object({
   API_PREFIX: Joi.string().default('api/v1'),
   CORS_ORIGIN: Joi.string().required(),
   BACKEND_PUBLIC_URL: Joi.string().allow('').default(''),
+  // 'strict'/'lax' when frontend and API share one origin behind a reverse proxy;
+  // 'none' when they're deployed as two separate origins (e.g. two Render services) —
+  // browsers refuse to send a Strict/Lax cookie across sites, breaking session refresh.
+  COOKIE_SAME_SITE: Joi.string()
+    .valid('strict', 'lax', 'none')
+    .default('strict'),
 
   DB_HOST: Joi.string().required(),
   DB_PORT: Joi.number().default(5432),

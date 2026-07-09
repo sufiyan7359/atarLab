@@ -1,0 +1,125 @@
+# Render Blueprint for AtarLab.
+#
+# Topology: two separate web services (no reverse proxy), each on its own
+# *.onrender.com origin, plus one managed Postgres database:
+#   - atarlab-backend   NestJS API           (Docker, docker/Dockerfile)
+#   - atarlab-frontend  Angular SSR storefront (Docker, docker/Dockerfile)
+#   - atarlab-db        Postgres
+#
+# Because the two services are on different origins, COOKIE_SAME_SITE is set to
+# 'none' below (see auth.controller.ts) so the refresh-token cookie survives the
+# cross-site request, and the frontend's environment.prod.ts bakes in the backend's
+# absolute URL at build time instead of a relative '/api/v1'. If Render suffixes
+# either service name below (global name collision), update:
+#   - atarlab-frontend/src/environments/environment.prod.ts (apiUrl)
+#   - CORS_ORIGIN / FRONTEND_URL / GOOGLE_CALLBACK_URL / BACKEND_PUBLIC_URL below
+#   - NG_ALLOWED_HOSTS below
+#
+# Redis isn't provisioned here: it's configured (REDIS_HOST/PORT) but nothing in
+# the codebase actually connects to it yet — it's reserved for post-MVP caching/
+# BullMQ/Socket.IO scaling work. Add a `keyvalue` service when that lands.
+#
+# One-time manual steps after the first deploy (Render Shell, on atarlab-backend):
+#   npm run seed          — creates the admin user + sample catalog
+# And note: file uploads fall back to local disk when CLOUDINARY_* is blank, and
+# Render's disk is ephemeral per-deploy — configure Cloudinary before relying on
+# real product image uploads in production.
+
+databases:
+  - name: atarlab-db
+    databaseName: atarlab
+    user: atarlab
+    plan: free
+
+services:
+  - type: web
+    name: atarlab-backend
+    runtime: docker
+    dockerfilePath: atarlab-backend/docker/Dockerfile
+    dockerContext: atarlab-backend
+    plan: free
+    healthCheckPath: /health
+    preDeployCommand: npm run migration:run:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: API_PREFIX
+        value: api/v1
+      - key: CORS_ORIGIN
+        value: https://atarlab-frontend.onrender.com
+      - key: COOKIE_SAME_SITE
+        value: none
+      - key: FRONTEND_URL
+        value: https://atarlab-frontend.onrender.com
+      - key: BACKEND_PUBLIC_URL
+        value: https://atarlab-backend.onrender.com
+
+      - key: DB_HOST
+        fromDatabase: { name: atarlab-db, property: host }
+      - key: DB_PORT
+        fromDatabase: { name: atarlab-db, property: port }
+      - key: DB_USERNAME
+        fromDatabase: { name: atarlab-db, property: user }
+      - key: DB_PASSWORD
+        fromDatabase: { name: atarlab-db, property: password }
+      - key: DB_NAME
+        fromDatabase: { name: atarlab-db, property: database }
+      - key: DB_SSL
+        value: "true"
+
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+
+      # Optional integrations — blank means the app's built-in sandbox fallbacks kick in
+      # (console-logged mail, no-op Razorpay orders, local-disk uploads, inert Google
+      # OAuth, inert Sentry). Fill in via the Render dashboard once real credentials
+      # exist; none of this needs a code or redeploy change.
+      - key: GOOGLE_CLIENT_ID
+        value: ""
+      - key: GOOGLE_CLIENT_SECRET
+        value: ""
+      - key: GOOGLE_CALLBACK_URL
+        value: https://atarlab-backend.onrender.com/api/v1/auth/google/callback
+      - key: MAIL_HOST
+        value: ""
+      - key: MAIL_PORT
+        value: "2525"
+      - key: MAIL_USER
+        value: ""
+      - key: MAIL_PASSWORD
+        value: ""
+      - key: MAIL_FROM
+        value: "AtarLab <no-reply@atarlab.com>"
+      - key: RAZORPAY_KEY_ID
+        value: ""
+      - key: RAZORPAY_KEY_SECRET
+        value: ""
+      - key: RAZORPAY_WEBHOOK_SECRET
+        value: ""
+      - key: CLOUDINARY_CLOUD_NAME
+        value: ""
+      - key: CLOUDINARY_API_KEY
+        value: ""
+      - key: CLOUDINARY_API_SECRET
+        value: ""
+      - key: SENTRY_DSN
+        value: ""
+
+  - type: web
+    name: atarlab-frontend
+    runtime: docker
+    dockerfilePath: atarlab-frontend/docker/Dockerfile
+    dockerContext: atarlab-frontend
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NG_ALLOWED_HOSTS
+        value: atarlab-frontend.onrender.com

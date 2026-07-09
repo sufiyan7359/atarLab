@@ -7,6 +7,7 @@ export interface AppConfig {
   corsOrigin: string;
   frontendUrl: string;
   publicUrl: string;
+  cookieSameSite: 'strict' | 'lax' | 'none';
   database: {
     host: string;
     port: number;
@@ -45,6 +46,10 @@ export default (): { app: AppConfig } => ({
     publicUrl:
       process.env.BACKEND_PUBLIC_URL ??
       `http://localhost:${process.env.PORT ?? '3000'}`,
+    cookieSameSite: (process.env.COOKIE_SAME_SITE ?? 'strict') as
+      | 'strict'
+      | 'lax'
+      | 'none',
     database: {
       host: process.env.DB_HOST ?? 'localhost',
       port: parseInt(process.env.DB_PORT ?? '5432', 10),
