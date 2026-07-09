@@ -1,32 +1,50 @@
 .loading-state {
-  padding: var(--space-16) 0;
+  padding-block: var(--space-16);
   text-align: center;
   color: var(--text-secondary);
 }
 
 .pdp {
   display: grid;
-  grid-template-columns: 1fr;
+  // 1fr alone is shorthand for minmax(auto, 1fr) — the "auto" minimum lets a
+  // descendant's intrinsic/min-content size (the product image, here) force the track
+  // wider than the container. minmax(0, 1fr) is the standard fix: it caps the track's
+  // minimum at 0 so it actually respects the container width regardless of content.
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-8);
-  padding: var(--space-8) 0;
+  // padding-block only — a full `padding` shorthand here would override .container's
+  // own horizontal padding (0 var(--space-4)) with 0, leaving content flush against
+  // the viewport edges on every screen size.
+  padding-block: var(--space-8);
   @media (min-width: 900px) {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
+.gallery {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
 .main-image {
   aspect-ratio: 4/5;
   background: var(--bg-muted);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  min-width: 0;
 }
 .main-image img {
   width: 100%;
   height: 100%;
+  min-width: 0;
+  max-width: 100%;
   object-fit: cover;
 }
 .thumbs {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
   margin-top: var(--space-3);
 }
@@ -197,7 +215,7 @@
 }
 
 .related-section {
-  padding: var(--space-12) 0;
+  padding-block: var(--space-12);
 }
 .related-section .product-grid {
   display: grid;

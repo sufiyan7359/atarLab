@@ -49,6 +49,14 @@
   border: 1px solid var(--border);
   background: var(--bg-elevated);
   color: var(--text-primary);
+  min-width: 0;
+}
+@media (max-width: 640px) {
+  .variant-row,
+  .note-row,
+  .ingredient-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 .image-grid {

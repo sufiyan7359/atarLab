@@ -24,7 +24,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
       .contact-page {
         max-width: 560px;
         margin: 0 auto;
-        padding: var(--space-8) 0 var(--space-16);
+        padding-block: var(--space-8) var(--space-16);
       }
       dl {
         margin: var(--space-6) 0;

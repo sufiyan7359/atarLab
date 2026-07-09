@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HeaderComponent } from './shared/layout/header/header.component';
 import { FooterComponent } from './shared/layout/footer/footer.component';
 import { MobileNavComponent } from './shared/layout/mobile-nav/mobile-nav.component';
@@ -18,14 +20,23 @@ import { CookieConsentBannerComponent } from './shared/components/cookie-consent
     CookieConsentBannerComponent,
   ],
   template: `
-    <app-header />
-    <main class="page-shell">
+    <!-- The admin console is a separate ops-tool shell (its own header/sidebar/nav) —
+         the storefront chrome around it would just be dead weight, and on mobile the
+         storefront's bottom nav bar would visually collide with the admin sidebar. -->
+    @if (!isAdminRoute()) {
+      <app-header />
+    }
+    <main class="page-shell" [class.admin-shell-page]="isAdminRoute()">
       <router-outlet />
     </main>
-    <app-footer />
-    <app-mobile-nav />
+    @if (!isAdminRoute()) {
+      <app-footer />
+      <app-mobile-nav />
+    }
     <app-toast-host />
-    <app-cookie-consent-banner />
+    @if (!isAdminRoute()) {
+      <app-cookie-consent-banner />
+    }
   `,
   styles: [
     `
@@ -38,7 +49,25 @@ import { CookieConsentBannerComponent } from './shared/components/cookie-consent
           padding-bottom: 0;
         }
       }
+      .page-shell.admin-shell-page {
+        min-height: 0;
+        padding-bottom: 0;
+      }
     `,
   ],
 })
-export class App {}
+export class App {
+  private readonly router = inject(Router);
+
+  private readonly currentUrl = signal(this.router.url);
+  isAdminRoute = computed(() => this.currentUrl().startsWith('/admin'));
+
+  constructor() {
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe((event) => this.currentUrl.set(event.urlAfterRedirects));
+  }
+}

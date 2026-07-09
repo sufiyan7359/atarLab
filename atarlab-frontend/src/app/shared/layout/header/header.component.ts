@@ -91,9 +91,12 @@ import { SearchBoxComponent } from '../search-box/search-box.component';
       }
       .bar {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        gap: var(--space-6);
-        height: 68px;
+        gap: var(--space-2) var(--space-6);
+        min-height: 68px;
+        padding-top: 8px;
+        padding-bottom: 8px;
       }
       .logo {
         font-family: var(--font-display);
@@ -112,9 +115,14 @@ import { SearchBoxComponent } from '../search-box/search-box.component';
       }
       .actions {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        gap: var(--space-3);
+        justify-content: flex-end;
+        gap: var(--space-2);
         margin-left: auto;
+        @media (min-width: 700px) {
+          gap: var(--space-3);
+        }
       }
       .icon-btn {
         position: relative;

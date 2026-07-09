@@ -27,7 +27,7 @@ import { FaqItem } from '../../core/models/content.model';
       .faq-page {
         max-width: 760px;
         margin: 0 auto;
-        padding: var(--space-8) 0 var(--space-16);
+        padding-block: var(--space-8) var(--space-16);
       }
       details {
         border-bottom: 1px solid var(--border);

@@ -33,7 +33,7 @@ import { NotificationsStore } from '../../core/state/notifications.store';
         display: grid;
         grid-template-columns: 1fr;
         gap: var(--space-6);
-        padding: var(--space-8) 0 var(--space-16);
+        padding-block: var(--space-8) var(--space-16);
         @media (min-width: 800px) {
           grid-template-columns: 200px 1fr;
         }
@@ -43,6 +43,10 @@ import { NotificationsStore } from '../../core/state/notifications.store';
         flex-direction: row;
         gap: var(--space-2);
         overflow-x: auto;
+        // A grid item's default min-width:auto lets its content's intrinsic width grow
+        // the 1fr track itself instead of scrolling within it — this is what makes
+        // overflow-x:auto actually take effect rather than pushing the whole page wide.
+        min-width: 0;
         @media (min-width: 800px) {
           flex-direction: column;
         }
