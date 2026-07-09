@@ -9,6 +9,18 @@ import { join } from 'node:path';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
+// Render assigns the actual hostname at service-creation time (suffixing it, e.g.
+// `atarlab-frontend-qump.onrender.com`, if the plain name in render.yaml is taken) —
+// impossible to know or hardcode into NG_ALLOWED_HOSTS ahead of time. Render always
+// injects its own resolved external hostname as RENDER_EXTERNAL_HOSTNAME, so fold it
+// into the SSR host allowlist here instead of relying on a static env var guess.
+if (process.env['RENDER_EXTERNAL_HOSTNAME']) {
+  const existing = process.env['NG_ALLOWED_HOSTS'];
+  process.env['NG_ALLOWED_HOSTS'] = existing
+    ? `${existing},${process.env['RENDER_EXTERNAL_HOSTNAME']}`
+    : process.env['RENDER_EXTERNAL_HOSTNAME'];
+}
+
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 

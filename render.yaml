@@ -2,18 +2,26 @@
 #
 # Topology: two separate web services (no reverse proxy), each on its own
 # *.onrender.com origin, plus one managed Postgres database:
-#   - atarlab-backend   NestJS API           (Docker, docker/Dockerfile)
-#   - atarlab-frontend  Angular SSR storefront (Docker, docker/Dockerfile)
-#   - atarlab-db        Postgres
+#   - atarlab7359-backend   NestJS API             (Docker, docker/Dockerfile)
+#   - atarlab7359-frontend  Angular SSR storefront (Docker, docker/Dockerfile)
+#   - atarlab7359-db        Postgres
+#
+# Service names are suffixed (7359) because Render service names are global across
+# all Render users, not just your account — the plain "atarlab-frontend" was already
+# taken by someone else, Render silently suffixed it instead (atarlab-frontend-qump),
+# and every hardcoded URL below pointed at the wrong host until it was caught. Keep
+# these names as-is (or pick your own equally-unique ones) rather than reverting to
+# the generic form.
 #
 # Because the two services are on different origins, COOKIE_SAME_SITE is set to
 # 'none' below (see auth.controller.ts) so the refresh-token cookie survives the
 # cross-site request, and the frontend's environment.prod.ts bakes in the backend's
-# absolute URL at build time instead of a relative '/api/v1'. If Render suffixes
-# either service name below (global name collision), update:
+# absolute URL at build time instead of a relative '/api/v1'. If you ever rename
+# either service (and thus its host), update:
 #   - atarlab-frontend/src/environments/environment.prod.ts (apiUrl)
 #   - CORS_ORIGIN / FRONTEND_URL / GOOGLE_CALLBACK_URL / BACKEND_PUBLIC_URL below
-#   - NG_ALLOWED_HOSTS below
+# (NG_ALLOWED_HOSTS needs no such update — server.ts derives it at boot from Render's
+# own RENDER_EXTERNAL_HOSTNAME, whatever hostname actually got assigned.)
 #
 # Redis isn't provisioned here: it's configured (REDIS_HOST/PORT) but nothing in
 # the codebase actually connects to it yet — it's reserved for post-MVP caching/
@@ -23,21 +31,21 @@
 # `npm run migration:run:prod` before starting the server — a no-op once applied).
 # Not wired as Render's preDeployCommand since that requires a paid plan.
 #
-# One-time manual steps after the first deploy (Render Shell, on atarlab-backend):
+# One-time manual steps after the first deploy (Render Shell, on atarlab7359-backend):
 #   npm run seed          — creates the admin user + sample catalog
 # And note: file uploads fall back to local disk when CLOUDINARY_* is blank, and
 # Render's disk is ephemeral per-deploy — configure Cloudinary before relying on
 # real product image uploads in production.
 
 databases:
-  - name: atarlab-db
+  - name: atarlab7359-db
     databaseName: atarlab
     user: atarlab
     plan: free
 
 services:
   - type: web
-    name: atarlab-backend
+    name: atarlab7359-backend
     runtime: docker
     dockerfilePath: atarlab-backend/docker/Dockerfile
     dockerContext: atarlab-backend
@@ -51,24 +59,24 @@ services:
       - key: API_PREFIX
         value: api/v1
       - key: CORS_ORIGIN
-        value: https://atarlab-frontend.onrender.com
+        value: https://atarlab7359-frontend.onrender.com
       - key: COOKIE_SAME_SITE
         value: none
       - key: FRONTEND_URL
-        value: https://atarlab-frontend.onrender.com
+        value: https://atarlab7359-frontend.onrender.com
       - key: BACKEND_PUBLIC_URL
-        value: https://atarlab-backend.onrender.com
+        value: https://atarlab7359-backend.onrender.com
 
       - key: DB_HOST
-        fromDatabase: { name: atarlab-db, property: host }
+        fromDatabase: { name: atarlab7359-db, property: host }
       - key: DB_PORT
-        fromDatabase: { name: atarlab-db, property: port }
+        fromDatabase: { name: atarlab7359-db, property: port }
       - key: DB_USERNAME
-        fromDatabase: { name: atarlab-db, property: user }
+        fromDatabase: { name: atarlab7359-db, property: user }
       - key: DB_PASSWORD
-        fromDatabase: { name: atarlab-db, property: password }
+        fromDatabase: { name: atarlab7359-db, property: password }
       - key: DB_NAME
-        fromDatabase: { name: atarlab-db, property: database }
+        fromDatabase: { name: atarlab7359-db, property: database }
       - key: DB_SSL
         value: "true"
 
@@ -90,7 +98,7 @@ services:
       - key: GOOGLE_CLIENT_SECRET
         value: ""
       - key: GOOGLE_CALLBACK_URL
-        value: https://atarlab-backend.onrender.com/api/v1/auth/google/callback
+        value: https://atarlab7359-backend.onrender.com/api/v1/auth/google/callback
       - key: MAIL_HOST
         value: ""
       - key: MAIL_PORT
@@ -117,7 +125,7 @@ services:
         value: ""
 
   - type: web
-    name: atarlab-frontend
+    name: atarlab7359-frontend
     runtime: docker
     dockerfilePath: atarlab-frontend/docker/Dockerfile
     dockerContext: atarlab-frontend
@@ -126,5 +134,7 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: NG_ALLOWED_HOSTS
-        value: atarlab-frontend.onrender.com
+      # No NG_ALLOWED_HOSTS here: Render suffixes the service name if it's taken (it did:
+      # atarlab-frontend-qump.onrender.com), so a static value would be wrong on arrival.
+      # server.ts instead folds Render's own RENDER_EXTERNAL_HOSTNAME into the allowlist
+      # at boot, whatever hostname Render actually assigned.
