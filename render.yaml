@@ -9,19 +9,26 @@
 # Service names are suffixed (7359) because Render service names are global across
 # all Render users, not just your account — the plain "atarlab-frontend" was already
 # taken by someone else, Render silently suffixed it instead (atarlab-frontend-qump),
-# and every hardcoded URL below pointed at the wrong host until it was caught. Keep
-# these names as-is (or pick your own equally-unique ones) rather than reverting to
-# the generic form.
+# and every hardcoded URL below pointed at the wrong host until it was caught. Even
+# "atarlab7359-frontend" then got suffixed again on recreate (atarlab7359-frontend-k12v),
+# which broke CORS the same way (backend's CORS_ORIGIN/FRONTEND_URL still pointed at
+# the un-suffixed name, so the browser's real Origin never matched, and every
+# register/login request was rejected by the browser as a CORS failure). Fixed for
+# good below: CORS_ORIGIN/FRONTEND_URL now use `fromService.envVarKey: RENDER_EXTERNAL_URL`
+# to read the frontend's actual assigned URL at deploy time instead of a hardcoded guess.
 #
 # Because the two services are on different origins, COOKIE_SAME_SITE is set to
 # 'none' below (see auth.controller.ts) so the refresh-token cookie survives the
 # cross-site request, and the frontend's environment.prod.ts bakes in the backend's
-# absolute URL at build time instead of a relative '/api/v1'. If you ever rename
-# either service (and thus its host), update:
+# absolute URL at build time instead of a relative '/api/v1'. That one *does* still
+# need a manual update if the backend service is ever renamed (self-healing only works
+# one direction — a Render web service can read another service's assigned host, but
+# environment.prod.ts is compiled into the frontend's static build, before Render has
+# assigned anything):
 #   - atarlab-frontend/src/environments/environment.prod.ts (apiUrl)
-#   - CORS_ORIGIN / FRONTEND_URL / GOOGLE_CALLBACK_URL / BACKEND_PUBLIC_URL below
-# (NG_ALLOWED_HOSTS needs no such update — server.ts derives it at boot from Render's
-# own RENDER_EXTERNAL_HOSTNAME, whatever hostname actually got assigned.)
+#   - GOOGLE_CALLBACK_URL / BACKEND_PUBLIC_URL below (both reference the backend's own host)
+# (NG_ALLOWED_HOSTS needs no such update either — server.ts derives it at boot from
+# Render's own RENDER_EXTERNAL_HOSTNAME, whatever hostname actually got assigned.)
 #
 # Redis isn't provisioned here: it's configured (REDIS_HOST/PORT) but nothing in
 # the codebase actually connects to it yet — it's reserved for post-MVP caching/
@@ -59,11 +66,11 @@ services:
       - key: API_PREFIX
         value: api/v1
       - key: CORS_ORIGIN
-        value: https://atarlab7359-frontend.onrender.com
+        fromService: { name: atarlab7359-frontend, type: web, envVarKey: RENDER_EXTERNAL_URL }
       - key: COOKIE_SAME_SITE
         value: none
       - key: FRONTEND_URL
-        value: https://atarlab7359-frontend.onrender.com
+        fromService: { name: atarlab7359-frontend, type: web, envVarKey: RENDER_EXTERNAL_URL }
       - key: BACKEND_PUBLIC_URL
         value: https://atarlab7359-backend.onrender.com
 
